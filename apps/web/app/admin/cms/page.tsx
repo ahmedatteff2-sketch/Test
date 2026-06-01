@@ -76,9 +76,12 @@ interface FAQItem {
 
 const getApiBase = () => {
   if (typeof window !== "undefined") {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      return process.env.NEXT_PUBLIC_API_URL;
+    }
     return `http://${window.location.hostname}:8080/api`;
   }
-  return "http://localhost:8080/api";
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 };
 
 const API_BASE = getApiBase();

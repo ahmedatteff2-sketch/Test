@@ -19,18 +19,21 @@ interface ClientRow {
   isActive: boolean;
   startDate: string;
   lastCheckin: string;
+  daysMissed: number;
+  priority: "stable" | "watch" | "urgent";
+  nextAction: string;
 }
 
 /* ── Mock data ── */
 const mockClients: ClientRow[] = [
-  { id: "1", name: "أحمد محمد", email: "ahmed@gmail.com", goal: "fat_loss", compliance: 92, weight: "85.2", isActive: true, startDate: "2026-01-15", lastCheckin: "اليوم" },
-  { id: "2", name: "محمد علي", email: "moh@gmail.com", goal: "muscle_gain", compliance: 78, weight: "72.5", isActive: true, startDate: "2026-02-01", lastCheckin: "أمس" },
-  { id: "3", name: "كريم حسن", email: "karim@gmail.com", goal: "fat_loss", compliance: 55, weight: "95.0", isActive: true, startDate: "2025-11-20", lastCheckin: "3 أيام" },
-  { id: "4", name: "يوسف إبراهيم", email: "youssef@gmail.com", goal: "recomposition", compliance: 88, weight: "78.3", isActive: true, startDate: "2026-03-10", lastCheckin: "اليوم" },
-  { id: "5", name: "عمر خالد", email: "omar@gmail.com", goal: "athletic", compliance: 45, weight: "68.1", isActive: false, startDate: "2025-09-05", lastCheckin: "أسبوع" },
-  { id: "6", name: "حسام نبيل", email: "hussam@gmail.com", goal: "muscle_gain", compliance: 96, weight: "90.7", isActive: true, startDate: "2026-04-01", lastCheckin: "اليوم" },
-  { id: "7", name: "طارق سعيد", email: "tarek@gmail.com", goal: "fat_loss", compliance: 62, weight: "102.3", isActive: true, startDate: "2026-01-28", lastCheckin: "أمس" },
-  { id: "8", name: "مصطفى أمين", email: "mostafa@gmail.com", goal: "recomposition", compliance: 84, weight: "76.0", isActive: true, startDate: "2026-02-15", lastCheckin: "اليوم" },
+  { id: "1", name: "أحمد محمد", email: "ahmed@gmail.com", goal: "fat_loss", compliance: 92, weight: "85.2", isActive: true, startDate: "2026-01-15", lastCheckin: "اليوم", daysMissed: 0, priority: "stable", nextAction: "ثبّت الخطة الحالية" },
+  { id: "2", name: "محمد علي", email: "moh@gmail.com", goal: "muscle_gain", compliance: 78, weight: "72.5", isActive: true, startDate: "2026-02-01", lastCheckin: "أمس", daysMissed: 1, priority: "watch", nextAction: "راجع البروتين والتمرين القادم" },
+  { id: "3", name: "كريم حسن", email: "karim@gmail.com", goal: "fat_loss", compliance: 55, weight: "95.0", isActive: true, startDate: "2025-11-20", lastCheckin: "3 أيام", daysMissed: 3, priority: "urgent", nextAction: "اتصال سريع + إعادة ضبط السعرات" },
+  { id: "4", name: "يوسف إبراهيم", email: "youssef@gmail.com", goal: "recomposition", compliance: 88, weight: "78.3", isActive: true, startDate: "2026-03-10", lastCheckin: "اليوم", daysMissed: 0, priority: "stable", nextAction: "اطلب صور التقدم الأسبوعية" },
+  { id: "5", name: "عمر خالد", email: "omar@gmail.com", goal: "athletic", compliance: 45, weight: "68.1", isActive: false, startDate: "2025-09-05", lastCheckin: "أسبوع", daysMissed: 7, priority: "urgent", nextAction: "رسالة استرجاع + موعد مكالمة" },
+  { id: "6", name: "حسام نبيل", email: "hussam@gmail.com", goal: "muscle_gain", compliance: 96, weight: "90.7", isActive: true, startDate: "2026-04-01", lastCheckin: "اليوم", daysMissed: 0, priority: "stable", nextAction: "زود حمل التمرين تدريجياً" },
+  { id: "7", name: "طارق سعيد", email: "tarek@gmail.com", goal: "fat_loss", compliance: 62, weight: "102.3", isActive: true, startDate: "2026-01-28", lastCheckin: "أمس", daysMissed: 1, priority: "watch", nextAction: "ابعت تذكير وجبات قبل النوم" },
+  { id: "8", name: "مصطفى أمين", email: "mostafa@gmail.com", goal: "recomposition", compliance: 84, weight: "76.0", isActive: true, startDate: "2026-02-15", lastCheckin: "اليوم", daysMissed: 0, priority: "stable", nextAction: "حافظ على نفس الماكروز" },
 ];
 
 const goalLabels: Record<string, string> = {
@@ -45,6 +48,18 @@ const goalColors: Record<string, string> = {
   muscle_gain: "bg-info/10 text-info",
   recomposition: "bg-warning/10 text-warning",
   athletic: "bg-success/10 text-success",
+};
+
+const priorityLabels = {
+  stable: "مستقر",
+  watch: "تابع",
+  urgent: "عاجل",
+};
+
+const priorityStyles = {
+  stable: "bg-success/10 text-success border-success/20",
+  watch: "bg-warning/10 text-warning border-warning/20",
+  urgent: "bg-danger/10 text-danger border-danger/20",
 };
 
 /* ── Add Client Modal ── */
@@ -97,12 +112,19 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [filterGoal, setFilterGoal] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
 
   const filtered = mockClients.filter((c) => {
     const matchSearch = c.name.includes(search) || c.email.includes(search);
     const matchGoal = filterGoal === "all" || c.goal === filterGoal;
-    return matchSearch && matchGoal;
+    const matchPriority = priorityFilter === "all" || c.priority === priorityFilter;
+    return matchSearch && matchGoal && matchPriority;
   });
+
+  const urgentCount = mockClients.filter((c) => c.priority === "urgent").length;
+  const watchCount = mockClients.filter((c) => c.priority === "watch").length;
+  const checkedInToday = mockClients.filter((c) => c.daysMissed === 0).length;
+  const avgCompliance = Math.round(mockClients.reduce((sum, c) => sum + c.compliance, 0) / mockClients.length);
 
   return (
     <div className="space-y-6">
@@ -119,6 +141,34 @@ export default function ClientsPage() {
           إضافة عميل
         </Button>
       </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          { label: "متوسط الالتزام", value: `${avgCompliance}%`, tone: "text-accent" },
+          { label: "تشيكن اليوم", value: `${checkedInToday}/${mockClients.length}`, tone: "text-success" },
+          { label: "يحتاج متابعة", value: watchCount.toString(), tone: "text-warning" },
+          { label: "عاجل", value: urgentCount.toString(), tone: "text-danger" },
+        ].map((item) => (
+          <Card key={item.label} className="p-4">
+            <p className="text-xs font-bold text-text-3">{item.label}</p>
+            <p className={cn("mt-2 text-2xl font-black", item.tone)} dir="ltr">{item.value}</p>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="border-accent/15 bg-accent/[0.04] p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="font-bold text-text-1">قائمة أولويات المتابعة</h2>
+            <p className="mt-1 text-sm text-text-2">
+              ابدأ بالعملاء العاجلين، ثم أصحاب الالتزام المتوسط، واترك المستقرين للتقرير الأسبوعي.
+            </p>
+          </div>
+          <Button href="/admin/monitoring" variant="outline" className="rounded-lg border-accent/25">
+            افتح لوحة المراقبة
+          </Button>
+        </div>
+      </Card>
 
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
@@ -151,6 +201,27 @@ export default function ClientsPage() {
             </button>
           ))}
         </div>
+        <div className="flex gap-2">
+          {[
+            { value: "all", label: "كل الحالات" },
+            { value: "urgent", label: "عاجل" },
+            { value: "watch", label: "تابع" },
+            { value: "stable", label: "مستقر" },
+          ].map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setPriorityFilter(f.value)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer border",
+                priorityFilter === f.value
+                  ? "bg-text-1 text-bg border-text-1"
+                  : "bg-surface-high text-text-2 border-transparent hover:text-text-1"
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}
@@ -159,7 +230,7 @@ export default function ClientsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-surface-high/50">
-                {["العميل", "الهدف", "الوزن", "الالتزام", "آخر تشيكن", "الحالة", ""].map((h) => (
+                {["العميل", "الهدف", "الوزن", "الالتزام", "آخر تشيكن", "الأولوية", "الإجراء التالي", ""].map((h) => (
                   <th key={h} className="text-start text-xs font-medium text-text-3 uppercase tracking-wider px-6 py-3">
                     {h}
                   </th>
@@ -205,10 +276,17 @@ export default function ClientsPage() {
                   </td>
                   <td className="px-6 py-4 text-sm text-text-2">{client.lastCheckin}</td>
                   <td className="px-6 py-4">
-                    <span className={cn("inline-flex items-center gap-1 text-xs", client.isActive ? "text-success" : "text-text-3")}>
-                      <span className={cn("w-1.5 h-1.5 rounded-full", client.isActive ? "bg-success" : "bg-text-3")} />
-                      {client.isActive ? "نشط" : "غير نشط"}
+                    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-bold", priorityStyles[client.priority])}>
+                      {priorityLabels[client.priority]}
                     </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="min-w-[190px]">
+                      <p className="text-sm font-semibold text-text-1">{client.nextAction}</p>
+                      <p className={cn("mt-1 text-xs", client.isActive ? "text-text-3" : "text-danger")}>
+                        {client.isActive ? "نشط" : "غير نشط"} · غياب {client.daysMissed} يوم
+                      </p>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-end">
                     <Link href={`/admin/clients/${client.id}`} className="text-accent hover:underline transition-colors text-sm cursor-pointer inline-flex items-center gap-1">

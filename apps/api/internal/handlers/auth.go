@@ -179,6 +179,9 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 				return []byte(h.cfg.JWTPrivateKey), nil
 			}
 		}
+		if h.cfg == nil || !h.cfg.IsDevelopment() {
+			return nil, fmt.Errorf("JWT signing key is required in production")
+		}
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
@@ -316,6 +319,10 @@ func (h *AuthHandler) generateToken(user userDTO, expiry time.Duration) (string,
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 			return token.SignedString([]byte(h.cfg.JWTPrivateKey))
 		}
+	}
+
+	if h.cfg == nil || !h.cfg.IsDevelopment() {
+		return "", fmt.Errorf("JWT signing key is required in production")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

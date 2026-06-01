@@ -3,9 +3,11 @@ package middleware
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
@@ -28,25 +30,63 @@ func Setup(app *fiber.App, cfg *config.Config) {
 	}))
 
 	// CORS — explicit allowlist, not wildcard
-	origins := strings.Split(cfg.AllowedOrigins, ",")
+	origins := compactCSV(cfg.AllowedOrigins)
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     strings.Join(origins, ","),
+		AllowOrigins:     origins,
 		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
 		AllowHeaders:     "Content-Type,Authorization",
 		AllowCredentials: true,
 		MaxAge:           86400,
 	}))
 
+	// Basic abuse protection for public and authenticated endpoints.
+	app.Use(limiter.New(limiter.Config{
+		Max:        120,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			if userID, ok := c.Locals("userID").(string); ok && userID != "" {
+				return userID
+			}
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return fiber.NewError(fiber.StatusTooManyRequests, "too many requests")
+		},
+	}))
+
+	// Reject unexpectedly large payloads before they reach handlers.
+	app.Use(func(c *fiber.Ctx) error {
+		const maxBodyBytes = 2 * 1024 * 1024
+		if c.Request().Header.ContentLength() > maxBodyBytes {
+			return fiber.NewError(fiber.StatusRequestEntityTooLarge, "request body too large")
+		}
+		return c.Next()
+	})
+
 	// Security headers
 	app.Use(func(c *fiber.Ctx) error {
 		c.Set("X-Content-Type-Options", "nosniff")
 		c.Set("X-Frame-Options", "DENY")
+		c.Set("X-Permitted-Cross-Domain-Policies", "none")
 		c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		c.Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; sandbox")
 		c.Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
 		c.Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+		c.Set("Vary", "Origin")
 		return c.Next()
 	})
+}
+
+func compactCSV(value string) string {
+	parts := strings.Split(value, ",")
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			out = append(out, part)
+		}
+	}
+	return strings.Join(out, ",")
 }
 
 // ErrorHandler is the global error handler for Fiber.

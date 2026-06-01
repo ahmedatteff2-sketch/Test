@@ -8,6 +8,7 @@ import Image from "next/image";
 
 const links = [
   { label: "عن الكوتش", href: "#about" },
+  { label: "المتابعة", href: "#client-command-center" },
   { label: "احسب احتياجك", href: "#calculator" },
   { label: "التحولات", href: "#transformations" },
   { label: "الأسعار", href: "#pricing" },
@@ -89,7 +90,7 @@ export function Navbar() {
           </div>
 
           <Button href="/login" variant="ghost" size="sm" className="text-text-2 hover:text-accent font-semibold">تسجيل الدخول</Button>
-          <Button href="/apply" size="sm" className="shadow-[0_0_15px_rgba(255, 30, 39, 0.3)] hover:shadow-[0_0_20px_rgba(255, 30, 39, 0.5)] transition-all">تقديم طلب</Button>
+          <Button href="/apply" size="sm" className="shadow-[0_0_15px_rgba(197,162,93,0.3)] hover:shadow-[0_0_20px_rgba(197,162,93,0.45)] transition-all">ابدأ الآن</Button>
         </div>
 
         {/* Mobile burger */}
@@ -138,7 +139,7 @@ export function Navbar() {
               ))}
               <div className="grid grid-cols-2 gap-3 mt-6">
                 <Button href="/login" variant="outline" className="w-full text-text-1" size="lg">تسجيل الدخول</Button>
-                <Button href="/apply" className="w-full" size="lg">تقديم طلب</Button>
+                <Button href="/apply" className="w-full" size="lg">ابدأ الآن</Button>
               </div>
             </div>
           </motion.div>

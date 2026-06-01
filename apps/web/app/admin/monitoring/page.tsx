@@ -173,6 +173,36 @@ const feedTypeStyles = {
   alert: "bg-danger/15 text-danger border border-danger/25 animate-pulse",
 };
 
+const followUpTemplates = [
+  {
+    title: "غياب التشيكن",
+    tone: "danger",
+    text: "بقالك كذا يوم مش باعت تشيكن. ابعتلي الوزن والنوم والدايت النهارده عشان نلحق الأسبوع.",
+  },
+  {
+    title: "ثبات وزن",
+    tone: "warning",
+    text: "الوزن ثابت، فهنراجع متوسط السعرات والخطوات قبل ما نقلل الأكل. ابعتلي آخر 3 أيام أكل.",
+  },
+  {
+    title: "تحفيز",
+    tone: "success",
+    text: "أداؤك ممتاز الأسبوع ده. خلينا نثبت نفس النظام ونزود الحمل تدريجيًا في التمرين الجاي.",
+  },
+  {
+    title: "مراجعة تكنيك",
+    tone: "info",
+    text: "ارفع فيديو آخر مجموعة من التمرين الأساسي عشان أراجع المسار والمدى الحركي قبل التصعيد.",
+  },
+];
+
+const toneStyles = {
+  danger: "border-danger/25 bg-danger/10 text-danger",
+  warning: "border-warning/25 bg-warning/10 text-warning",
+  success: "border-success/25 bg-success/10 text-success",
+  info: "border-info/25 bg-info/10 text-info",
+};
+
 type RiskFilter = "all" | "low" | "medium" | "high";
 
 export default function MonitoringPage() {
@@ -204,6 +234,7 @@ export default function MonitoringPage() {
   const [sessionDate, setSessionDate] = useState("2026-05-25");
   const [sessionTime, setSessionTime] = useState("16:00");
   const [sessionType, setSessionType] = useState("مراجعة القياسات والماكروز");
+  const [selectedTemplate, setSelectedTemplate] = useState(followUpTemplates[0].text);
 
   /* ── Autopilot Actions Handlers ── */
   const handleReduceCalories = (clientId: string) => {
@@ -461,6 +492,54 @@ export default function MonitoringPage() {
           </button>
         ))}
       </div>
+
+      <Card className="border-accent/15 bg-accent/[0.04] p-5">
+        <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+          <div>
+            <p className="text-xs font-bold text-accent">Message Playbook</p>
+            <h2 className="mt-1 text-lg font-bold text-text-1">قوالب متابعة جاهزة حسب حالة العميل</h2>
+            <p className="mt-2 text-sm leading-7 text-text-2">
+              اختار قالب، عدله في ثواني، وابعت واتساب أو انسخه في الشات. ده يقلل وقت المتابعة ويخلي الردود ثابتة واحترافية.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+              {followUpTemplates.map((template) => (
+                <button
+                  key={template.title}
+                  onClick={() => setSelectedTemplate(template.text)}
+                  className={cn(
+                    "rounded-lg border px-3 py-2 text-xs font-bold transition-colors",
+                    toneStyles[template.tone as keyof typeof toneStyles]
+                  )}
+                >
+                  {template.title}
+                </button>
+              ))}
+            </div>
+            <textarea
+              value={selectedTemplate}
+              onChange={(e) => setSelectedTemplate(e.target.value)}
+              className="min-h-[88px] w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-sm leading-7 text-text-1 focus:outline-none focus:ring-2 focus:ring-accent/20"
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard?.writeText(selectedTemplate);
+                  triggerToast("تم نسخ قالب المتابعة");
+                }}
+              >
+                نسخ الرسالة
+              </Button>
+              <Button size="sm" onClick={() => triggerToast("تم تجهيز الرسالة للإرسال")}>
+                تجهيز للإرسال
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* ── Client detail cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

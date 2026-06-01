@@ -3,11 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "EAGLE — Online Coaching Platform",
+    default: "EAGLE GYM | تدريب أونلاين ونتائج حقيقية",
     template: "%s | EAGLE Coaching",
   },
   description:
-    "Transform your body with personalized training and nutrition plans. Expert online coaching with daily tracking, progress photos, and 24/7 support.",
+    "منصة تدريب أونلاين تجمع بين خطط تمرين مخصصة، تغذية محسوبة، متابعة يومية، وتحليل تقدم واضح للوصول لهدفك بثقة.",
   keywords: [
     "online coaching",
     "fitness",
@@ -15,6 +15,8 @@ export const metadata: Metadata = {
     "nutrition",
     "تدريب اونلاين",
     "كوتشينج",
+    "تخسيس",
+    "زيادة عضل",
   ],
   authors: [{ name: "EAGLE Coaching" }],
   openGraph: {
@@ -27,7 +29,7 @@ export const metadata: Metadata = {
         url: "/images/hero_gym_bg.png",
         width: 1200,
         height: 630,
-        alt: "EAGLE Online Coaching Platform",
+        alt: "EAGLE GYM online coaching platform",
       },
     ],
   },

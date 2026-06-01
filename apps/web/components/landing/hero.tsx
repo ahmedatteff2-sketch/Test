@@ -1,99 +1,102 @@
 "use client";
- 
+
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { useCMSContent } from "@/lib/cms";
 import { cn } from "@/lib/utils";
 
 const defaultHero = {
-  headline: "ابني جسمك\nاكسر حدودك",
-  subheadline: "أقوى منصة تدريب أونلاين في مصر. جداول تمرين مخصصة، نظام غذائي محسوب بالجرامات، ومتابعة يومية تضمن لك الوصول لهدفك في أسرع وقت.",
-  ctaText: "ابدأ رحلتك الآن",
+  headline: "ابني جسمك\nبخطة واضحة",
+  subheadline:
+    "تدريب أونلاين احترافي يجمع بين برنامج تمرين مخصص، نظام غذائي محسوب، متابعة يومية، وتقارير تقدم تساعدك تعرف بالضبط ماذا تعمل كل أسبوع.",
+  ctaText: "ابدأ التقييم المجاني",
   metric1Value: "+2,400",
   metric1Label: "مشترك",
   metric2Value: "98%",
   metric2Label: "نسبة الالتزام",
-  metric3Value: "4.9★",
+  metric3Value: "4.9",
   metric3Label: "تقييم المشتركين",
 };
 
+const proofItems = ["خطط مخصصة", "متابعة يومية", "تغذية محسوبة", "تحليل تقدم"];
+
 export function Hero() {
   const content = useCMSContent("hero", defaultHero);
+  const headlineLines = content.headline.split("\n");
 
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-between pt-24 pb-12 overflow-hidden">
-      {/* Background Image & Overlay */}
+    <section
+      id="hero"
+      className="relative min-h-screen overflow-hidden pt-24 pb-10 md:pt-28"
+    >
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/hero_gym_bg.png"
-          alt="Gym Background"
+          alt="EAGLE GYM training floor"
           fill
-          className="object-cover object-center opacity-40 scale-105 transition-transform duration-[10s] ease-out"
+          className="object-cover object-center opacity-55"
           priority
+          sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/90 to-bg" />
-        <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/75 to-transparent" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.98)_0%,rgba(5,5,5,0.88)_38%,rgba(5,5,5,0.54)_72%,rgba(5,5,5,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(0deg,var(--bg)_0%,rgba(5,5,5,0.2)_34%,rgba(5,5,5,0.64)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-bg to-transparent" />
       </div>
 
-      {/* Futuristic Background Grid & Ambient Glows */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] z-0 pointer-events-none" />
-      <div className="absolute top-[-10%] start-[-10%] w-[50%] aspect-square rounded-full bg-accent/10 blur-[120px] pointer-events-none z-0" />
-      <div className="absolute bottom-[10%] end-[-10%] w-[40%] aspect-square rounded-full bg-info/5 blur-[100px] pointer-events-none z-0" />
+      <div className="absolute inset-0 z-0 pointer-events-none bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_70%,transparent)]" />
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 relative z-10 flex-1 flex flex-col justify-center">
-        <div className="max-w-3xl py-12 md:py-16">
+      <div className="relative z-10 mx-auto grid min-h-[calc(100vh-8rem)] max-w-7xl grid-cols-1 items-center gap-10 px-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="max-w-3xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.55 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/25 bg-bg/55 px-3 py-2 text-xs font-bold text-accent shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md"
           >
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 mb-6 text-xs font-semibold rounded-full bg-surface-high/80 backdrop-blur-md text-accent border border-accent/30 shadow-[0_0_15px_rgba(197,162,93,0.15)]">
-              <span>🥇</span>
-              <span>أقوى منصة تدريب أونلاين في مصر</span>
-            </span>
+            <span className="h-2 w-2 rounded-full bg-success shadow-[0_0_18px_rgba(0,214,143,0.65)]" />
+            منصة تدريب أونلاين بنتائج قابلة للقياس
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-6xl md:text-8xl font-display font-extrabold text-white mb-6 leading-[1.05] tracking-tight whitespace-pre-line"
+            transition={{ duration: 0.6, delay: 0.08 }}
+            className="max-w-[780px] text-5xl font-black leading-[1.08] text-white sm:text-6xl lg:text-7xl"
           >
-            {content.headline.split("\n").map((line, idx) => (
-              <span key={idx}>
-                {idx > 0 ? (
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-[#D4AF37] drop-shadow-[0_0_30px_rgba(197,162,93,0.3)]">
-                    {line}
-                  </span>
-                ) : (
-                  line
-                )}
-                {idx < content.headline.split("\n").length - 1 && <br />}
+            {headlineLines.map((line, idx) => (
+              <span key={line} className="block">
+                <span
+                  className={cn(
+                    idx === headlineLines.length - 1 &&
+                      "bg-gradient-to-r from-accent to-[#F0C978] bg-clip-text text-transparent drop-shadow-[0_0_22px_rgba(197,162,93,0.26)]"
+                  )}
+                >
+                  {line}
+                </span>
               </span>
             ))}
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-text-2 mb-10 max-w-2xl leading-relaxed"
+            transition={{ duration: 0.6, delay: 0.16 }}
+            className="mt-6 max-w-2xl text-base leading-8 text-text-2 md:text-lg"
           >
             {content.subheadline}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4"
+            transition={{ duration: 0.6, delay: 0.24 }}
+            className="mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <Button
               href="/apply"
               size="lg"
-              className="w-full sm:w-auto text-lg px-8 py-6 rounded-full shadow-[0_0_20px_rgba(197,162,93,0.4)] hover:shadow-[0_0_35px_rgba(197,162,93,0.6)] hover:scale-105 active:scale-98 transition-all duration-300 hover:animate-pulse-glow font-bold"
+              className="min-h-14 w-full rounded-lg px-7 text-base font-extrabold shadow-[0_18px_45px_rgba(197,162,93,0.24)] sm:w-auto"
             >
               {content.ctaText}
             </Button>
@@ -101,57 +104,107 @@ export function Hero() {
               href="#pricing"
               size="lg"
               variant="outline"
-              className="w-full sm:w-auto text-lg px-8 py-6 rounded-full border-white/20 hover:bg-white/5 hover:scale-105 active:scale-98 transition-all duration-300 font-bold"
+              className="min-h-14 w-full rounded-lg border-white/15 bg-white/[0.03] px-7 text-base font-bold hover:border-accent/30 sm:w-auto"
             >
-              استكشف الخطط
+              شوف الباقات
             </Button>
           </motion.div>
 
-          {/* Trust Strip */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-16 inline-flex flex-wrap items-center gap-4 bg-surface-high/60 backdrop-blur-md border border-accent/20 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] max-w-xl"
+            transition={{ duration: 0.6, delay: 0.32 }}
+            className="mt-8 flex flex-wrap gap-2"
           >
-            <div className="flex -space-x-3.5 rtl:space-x-reverse">
-              {[
-                { name: "أحمد", color: "from-accent/20 to-accent/40 text-accent border-accent/20" },
-                { name: "محمد", color: "from-info/20 to-info/40 text-info border-info/20" },
-                { name: "عمر", color: "from-warning/20 to-warning/40 text-warning border-warning/20" },
-                { name: "سارة", color: "from-purple-500/20 to-purple-500/40 text-purple-400 border-purple-500/20" },
-              ].map((av, idx) => (
-                <div key={idx} className={cn("w-9 h-9 rounded-full border-2 border-bg bg-gradient-to-br flex items-center justify-center text-xs font-black select-none", av.color)}>
-                  {av.name[0]}
-                </div>
-              ))}
-            </div>
-            <div className="text-text-1 text-sm font-semibold flex flex-col">
-              <span className="text-white flex items-center gap-1.5">
-                <span className="text-accent">★ 4.9</span> (أكثر من 1,000 مشترك)
+            {proofItems.map((item) => (
+              <span
+                key={item}
+                className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-bold text-text-2 backdrop-blur-sm"
+              >
+                {item}
               </span>
-              <span className="text-xs text-text-2 mt-0.5">حقّقوا خسارة متوسط 3 كجم في أول أسبوع! 💥</span>
-            </div>
+            ))}
           </motion.div>
         </div>
-      </div>
 
-      {/* Scroll indicator */}
-      <div 
-        onClick={() => document.getElementById("stats")?.scrollIntoView({ behavior: "smooth" })}
-        className="relative bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10 cursor-pointer pointer-events-auto select-none mt-auto"
-      >
-        <span className="text-[10px] text-text-3 font-semibold uppercase tracking-wider">اكتشف المزيد</span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="text-accent"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, delay: 0.2 }}
+          className="relative hidden lg:block"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-          </svg>
+          <div className="relative ms-auto w-full max-w-[520px] overflow-hidden rounded-lg border border-white/10 bg-bg/65 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div>
+                <p className="text-xs font-bold text-text-3">لوحة متابعة العميل</p>
+                <h2 className="mt-1 text-xl font-extrabold text-white">أسبوع قوي، تقدم واضح</h2>
+              </div>
+              <span className="rounded-md bg-success/12 px-3 py-1 text-xs font-black text-success">
+                ملتزم 96%
+              </span>
+            </div>
+
+            <div className="grid gap-4 p-5">
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  [content.metric1Value, content.metric1Label],
+                  [content.metric2Value, content.metric2Label],
+                  [content.metric3Value, content.metric3Label],
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                    <p className="text-2xl font-black text-white" dir="ltr">
+                      {value}
+                    </p>
+                    <p className="mt-1 text-xs font-semibold text-text-3">{label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-lg border border-accent/15 bg-accent/[0.06] p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-bold text-white">خطة اليوم</span>
+                  <span className="text-xs font-bold text-accent">Push Day</span>
+                </div>
+                {["بنش بريس", "كتف أمامي", "ترايسبس"].map((exercise, index) => (
+                  <div key={exercise} className="flex items-center justify-between border-t border-white/10 py-3 first:border-t-0">
+                    <span className="text-sm font-semibold text-text-2">{exercise}</span>
+                    <span className="rounded bg-bg/60 px-2 py-1 text-xs font-bold text-text-1">
+                      {index + 3} مجموعات
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-[1fr_auto] items-center gap-4 rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <div>
+                  <p className="text-sm font-bold text-white">رسالة الكوتش</p>
+                  <p className="mt-1 text-xs leading-6 text-text-2">
+                    ممتاز. زود 2.5 كجم في آخر مجموعة وحافظ على نفس الريتم.
+                  </p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-lg font-black text-bg">
+                  EG
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
+
+      <button
+        type="button"
+        onClick={() => document.getElementById("stats")?.scrollIntoView({ behavior: "smooth" })}
+        className="absolute bottom-5 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs font-bold text-text-3 transition-colors hover:text-accent md:flex"
+      >
+        اكتشف المزيد
+        <motion.span
+          animate={{ y: [0, 7, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          className="block h-8 w-5 rounded-full border border-white/20 p-1"
+        >
+          <span className="mx-auto block h-1.5 w-1.5 rounded-full bg-accent" />
+        </motion.span>
+      </button>
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Stats } from "@/components/landing/stats";
 import { Features } from "@/components/landing/features";
+import { ClientCommandCenter } from "@/components/landing/client-command-center";
 import { Calculator } from "@/components/landing/calculator";
 import { AboutCoach } from "@/components/landing/about-coach";
 import { Transformations } from "@/components/landing/transformations";
@@ -21,6 +22,7 @@ export default function LandingPage() {
       <Stats />
       <AboutCoach />
       <Features />
+      <ClientCommandCenter />
       <Calculator />
       <Transformations />
       <Testimonials />

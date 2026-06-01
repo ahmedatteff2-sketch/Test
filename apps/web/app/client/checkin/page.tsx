@@ -151,6 +151,12 @@ const energyLevels = [
   { label: "خرافية", value: 5 },
 ];
 
+interface MealScanResult {
+  detectedFoods: { name: string; macros: string }[];
+  totalCalories: number;
+  confidence: number;
+}
+
 export default function CheckinPage() {
   const [submitted, setSubmitted] = useState(false);
   const [workoutStatus, setWorkoutStatus] = useState<string | null>(null);
@@ -169,7 +175,7 @@ export default function CheckinPage() {
   /* ── AI Meal Scanner State ── */
   const [mealImage, setMealImage] = useState<string | null>(null);
   const [isScanningMeal, setIsScanningMeal] = useState(false);
-  const [scanResult, setScanResult] = useState<any | null>(null);
+  const [scanResult, setScanResult] = useState<MealScanResult | null>(null);
 
   /* ── Toasts State ── */
   const [toasts, setToasts] = useState<{ id: string; text: string }[]>([]);
@@ -182,6 +188,21 @@ export default function CheckinPage() {
   };
 
   const streak = 14;
+  const readinessScore = Math.round(
+    ((workoutStatus === "done" ? 100 : workoutStatus === "partial" ? 70 : workoutStatus === "skipped" ? 35 : 55) * 0.22) +
+    (dietPercent * 0.25) +
+    (((sleepQuality || 3) / 5) * 100 * 0.18) +
+    (((energy || 3) / 5) * 100 * 0.15) +
+    ((waterCups / 8) * 100 * 0.12) +
+    ((soreness ? Math.max(0, 5 - soreness) / 4 : 0.6) * 100 * 0.08)
+  );
+  const readinessTone = readinessScore >= 80 ? "text-success" : readinessScore >= 60 ? "text-warning" : "text-danger";
+  const nextCoachSignal =
+    readinessScore >= 80
+      ? "جاهز للتصعيد: حافظ على الخطة وزود حمل التمرين تدريجياً."
+      : readinessScore >= 60
+        ? "محتاج متابعة خفيفة: راجع النوم والمياه قبل تعديل الدايت."
+        : "أولوية للكوتش: راجع أسباب الهبوط وحدد إجراء سريع اليوم.";
 
   /* ── Wearables Sync Trigger ── */
   const handleWearableSync = () => {
@@ -302,6 +323,24 @@ export default function CheckinPage() {
 
       <StreakBanner count={streak} />
 
+      <Card className="border-accent/20 bg-accent/[0.045] p-4">
+        <div className="grid gap-4 md:grid-cols-[auto_1fr_auto] md:items-center">
+          <div className="text-center">
+            <p className="text-xs font-bold text-text-3">Readiness Score</p>
+            <p className={cn("mt-1 text-4xl font-black", readinessTone)} dir="ltr">{readinessScore}</p>
+          </div>
+          <div>
+            <h2 className="font-bold text-text-1">ملخص ذكي قبل الإرسال</h2>
+            <p className="mt-1 text-sm leading-7 text-text-2">{nextCoachSignal}</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-text-3 md:w-64">
+            <div className="rounded-md bg-bg/50 p-2"><span className="block font-bold text-text-1">{dietPercent}%</span>دايت</div>
+            <div className="rounded-md bg-bg/50 p-2"><span className="block font-bold text-text-1">{sleepQuality || 3}/5</span>نوم</div>
+            <div className="rounded-md bg-bg/50 p-2"><span className="block font-bold text-text-1">{waterCups}/8</span>مياه</div>
+          </div>
+        </div>
+      </Card>
+
       <Card className="border border-border p-5 bg-surface">
         <div className="space-y-6">
           
@@ -390,7 +429,7 @@ export default function CheckinPage() {
                       <span className="text-accent font-bold font-mono">~{scanResult.totalCalories} kcal</span>
                     </div>
                     <div className="space-y-1">
-                      {scanResult.detectedFoods.map((f: any, idx: number) => (
+                      {scanResult.detectedFoods.map((f, idx) => (
                         <div key={idx} className="flex justify-between text-text-2 text-[11px]">
                           <span>{f.name}</span>
                           <span className="font-mono text-text-3">{f.macros}</span>

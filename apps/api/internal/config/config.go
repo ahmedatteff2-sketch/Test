@@ -29,10 +29,14 @@ func Load() *Config {
 	
 	dbDefault := ""
 	allowedOriginsDefault := ""
+	adminPasswordDefault := ""
+	clientPasswordDefault := ""
 	
 	if env == "development" {
 		dbDefault = "postgres://localhost:5432/coaching?sslmode=disable"
 		allowedOriginsDefault = "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001"
+		adminPasswordDefault = "admin123"
+		clientPasswordDefault = "client123"
 	}
 
 	return &Config{
@@ -46,9 +50,9 @@ func Load() *Config {
 		AllowedOrigins: getEnv("ALLOWED_ORIGINS", allowedOriginsDefault),
 		Environment:    env,
 		AdminEmail:     getEnv("ADMIN_EMAIL", "admin@eagle.com"),
-		AdminPassword:  getEnv("ADMIN_PASSWORD", "admin123"),
+		AdminPassword:  getEnv("ADMIN_PASSWORD", adminPasswordDefault),
 		ClientEmail:    getEnv("CLIENT_EMAIL", "client@eagle.com"),
-		ClientPassword: getEnv("CLIENT_PASSWORD", "client123"),
+		ClientPassword: getEnv("CLIENT_PASSWORD", clientPasswordDefault),
 	}
 }
 
