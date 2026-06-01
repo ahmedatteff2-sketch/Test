@@ -4,14 +4,8 @@
  * auth headers, and response parsing.
  */
 
-const getApiBase = () => {
-  if (typeof window !== "undefined") {
-    return `http://${window.location.hostname}:8080/api`;
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-};
-
-const API_BASE = getApiBase();
+import { getApiBase } from "./config";
+import { readCsrfCookie, setCsrfCookie } from "./auth";
 
 interface ApiResponse<T> {
   data: T;
@@ -29,10 +23,10 @@ interface ApiError {
 }
 
 class ApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  private get baseUrl(): string {
+    // Resolve lazily so the value reflects the runtime (browser host /
+    // configured env) rather than being frozen at module load.
+    return getApiBase();
   }
 
   private async request<T>(
@@ -41,11 +35,20 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${path}`;
 
+    // Echo the CSRF token on state-changing requests (double-submit). The token
+    // is read from the readable eagle_csrf cookie and validated server-side
+    // against the csrf claim bound into the httpOnly access-token JWT.
+    const method = (options.method ?? "GET").toUpperCase();
+    const csrfToken = ["GET", "HEAD", "OPTIONS"].includes(method)
+      ? null
+      : readCsrfCookie();
+
     const response = await fetch(url, {
       ...options,
       credentials: "include", // send httpOnly cookies
       headers: {
         "Content-Type": "application/json",
+        ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
         ...options.headers,
       },
     });
@@ -78,6 +81,12 @@ class ApiClient {
         method: "POST",
         credentials: "include",
       });
+      if (res.ok) {
+        // Refresh rotates the CSRF token too — capture the new one for retries.
+        const body = await res.json().catch(() => null);
+        const token = body?.data?.csrfToken;
+        if (token) setCsrfCookie(token);
+      }
       return res.ok;
     } catch {
       return false;
@@ -123,4 +132,4 @@ class ApiClient {
   }
 }
 
-export const api = new ApiClient(API_BASE);
+export const api = new ApiClient();

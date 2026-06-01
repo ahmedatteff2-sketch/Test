@@ -25,6 +25,15 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -97,7 +106,9 @@ export function Navbar() {
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden text-text-1 p-2 cursor-pointer bg-white/5 border border-white/10 rounded-lg transition-colors hover:bg-white/10"
-          aria-label="Toggle menu"
+          aria-label={mobileOpen ? "إغلاق القائمة" : "فتح القائمة"}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             {mobileOpen ? (
@@ -117,6 +128,7 @@ export function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}

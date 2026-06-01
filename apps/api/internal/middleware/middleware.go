@@ -34,7 +34,7 @@ func Setup(app *fiber.App, cfg *config.Config) {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     origins,
 		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-		AllowHeaders:     "Content-Type,Authorization",
+		AllowHeaders:     "Content-Type,Authorization,X-CSRF-Token",
 		AllowCredentials: true,
 		MaxAge:           86400,
 	}))
@@ -74,6 +74,40 @@ func Setup(app *fiber.App, cfg *config.Config) {
 		c.Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
 		c.Set("Vary", "Origin")
 		return c.Next()
+	})
+}
+
+// LoginRateLimiter returns a stricter, per-IP limiter intended for the login
+// endpoint to slow credential-stuffing / brute-force attempts. It is separate
+// from the global limiter so authentication can be throttled aggressively
+// without affecting normal API traffic.
+func LoginRateLimiter() fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        10,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return fiber.NewError(fiber.StatusTooManyRequests, "too many login attempts, please try again later")
+		},
+	})
+}
+
+// PublicFormRateLimiter returns a strict, per-IP limiter for unauthenticated
+// form submissions (e.g. the public application form). These endpoints accept
+// PII and have no auth gate, so they are a prime target for spam/abuse; a low
+// ceiling keeps them usable for humans while blocking scripted flooding.
+func PublicFormRateLimiter() fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return fiber.NewError(fiber.StatusTooManyRequests, "too many submissions, please try again later")
+		},
 	})
 }
 

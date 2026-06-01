@@ -61,6 +61,7 @@ type AuthHandler struct {
 	cfg        *config.Config
 	adminHash  string
 	clientHash string
+	dummyHash  string
 	blacklist  *TokenBlacklist
 }
 
@@ -68,10 +69,15 @@ type AuthHandler struct {
 func NewAuthHandler(cfg *config.Config) *AuthHandler {
 	adminHash, _ := bcrypt.GenerateFromPassword([]byte(cfg.AdminPassword), 12)
 	clientHash, _ := bcrypt.GenerateFromPassword([]byte(cfg.ClientPassword), 12)
+	// A throwaway hash compared against when the email is unknown, so login
+	// timing is the same whether or not the account exists (prevents user
+	// enumeration via response-time differences).
+	dummyHash, _ := bcrypt.GenerateFromPassword([]byte("unused-placeholder-credential"), 12)
 	return &AuthHandler{
 		cfg:        cfg,
 		adminHash:  string(adminHash),
 		clientHash: string(clientHash),
+		dummyHash:  string(dummyHash),
 		blacklist:  NewTokenBlacklist(),
 	}
 }
@@ -82,14 +88,32 @@ type loginRequest struct {
 }
 
 type authResponse struct {
-	User  userDTO `json:"user"`
-	Token string  `json:"token,omitempty"` // only in dev mode
+	User      userDTO `json:"user"`
+	Token     string  `json:"token,omitempty"`     // only in dev mode
+	CSRFToken string  `json:"csrfToken,omitempty"` // double-submit CSRF token
 }
 
 type userDTO struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
 	Role  string `json:"role"`
+}
+
+// cookieSecure reports whether auth cookies should carry the Secure attribute.
+func (h *AuthHandler) cookieSecure() bool {
+	return h.cfg != nil && !h.cfg.IsDevelopment()
+}
+
+// cookieSameSite chooses the SameSite policy. In production the web app and API
+// are served from separate domains, so cross-site auth requires SameSite=None
+// (browsers only honor None together with Secure). Locally everything is
+// same-site over http, where Lax works without Secure. In the None case, CSRF
+// is handled by the token check (RequireCSRF), not by SameSite.
+func (h *AuthHandler) cookieSameSite() string {
+	if h.cfg != nil && h.cfg.IsDevelopment() {
+		return "Lax"
+	}
+	return "None"
 }
 
 // Login authenticates a user with email/password and sets JWT cookies.
@@ -114,6 +138,9 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		user = userDTO{ID: "00000000-0000-0000-0000-000000000002", Email: req.Email, Role: "client"}
 		storedHash = h.clientHash
 	default:
+		// Perform a bcrypt comparison against a dummy hash so the response time
+		// matches the valid-email path, preventing username enumeration.
+		_ = bcrypt.CompareHashAndPassword([]byte(h.dummyHash), []byte(req.Password))
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid email or password")
 	}
 
@@ -121,14 +148,17 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid email or password")
 	}
 
+	// CSRF token bound into the JWT and echoed to the client (double-submit).
+	csrfToken := uuid.New().String()
+
 	// Generate access token (15 min)
-	accessToken, err := h.generateToken(user, 15*time.Minute)
+	accessToken, err := h.generateToken(user, 15*time.Minute, csrfToken)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "failed to generate token")
 	}
 
 	// Generate refresh token (30 days)
-	refreshToken, err := h.generateToken(user, 30*24*time.Hour)
+	refreshToken, err := h.generateToken(user, 30*24*time.Hour, csrfToken)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "failed to generate token")
 	}
@@ -139,8 +169,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		Value:    accessToken,
 		Expires:  time.Now().Add(15 * time.Minute),
 		HTTPOnly: true,
-		Secure:   h.cfg != nil && !h.cfg.IsDevelopment(),
-		SameSite: "Strict",
+		Secure:   h.cookieSecure(),
+		SameSite: h.cookieSameSite(),
 		Path:     "/",
 	})
 
@@ -149,12 +179,12 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		Value:    refreshToken,
 		Expires:  time.Now().Add(30 * 24 * time.Hour),
 		HTTPOnly: true,
-		Secure:   h.cfg != nil && !h.cfg.IsDevelopment(),
-		SameSite: "Strict",
+		Secure:   h.cookieSecure(),
+		SameSite: h.cookieSameSite(),
 		Path:     "/api/auth/refresh",
 	})
 
-	return OK(c, authResponse{User: user})
+	return OK(c, authResponse{User: user, CSRFToken: csrfToken})
 }
 
 // Refresh exchanges a refresh token for a new access token and a new rotated refresh token.
@@ -225,14 +255,17 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 		Role:  role,
 	}
 
+	// Rotate the CSRF token alongside the refreshed session.
+	csrfToken := uuid.New().String()
+
 	// Generate new access token
-	newAccessToken, err := h.generateToken(user, 15*time.Minute)
+	newAccessToken, err := h.generateToken(user, 15*time.Minute, csrfToken)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "failed to generate token")
 	}
 
 	// Generate new rotated refresh token
-	newRefreshToken, err := h.generateToken(user, 30*24*time.Hour)
+	newRefreshToken, err := h.generateToken(user, 30*24*time.Hour, csrfToken)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "failed to generate token")
 	}
@@ -243,8 +276,8 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 		Value:    newAccessToken,
 		Expires:  time.Now().Add(15 * time.Minute),
 		HTTPOnly: true,
-		Secure:   h.cfg != nil && !h.cfg.IsDevelopment(),
-		SameSite: "Strict",
+		Secure:   h.cookieSecure(),
+		SameSite: h.cookieSameSite(),
 		Path:     "/",
 	})
 
@@ -253,12 +286,12 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 		Value:    newRefreshToken,
 		Expires:  time.Now().Add(30 * 24 * time.Hour),
 		HTTPOnly: true,
-		Secure:   h.cfg != nil && !h.cfg.IsDevelopment(),
-		SameSite: "Strict",
+		Secure:   h.cookieSecure(),
+		SameSite: h.cookieSameSite(),
 		Path:     "/api/auth/refresh",
 	})
 
-	return OK(c, map[string]string{"message": "token refreshed"})
+	return OK(c, map[string]string{"message": "token refreshed", "csrfToken": csrfToken})
 }
 
 // Logout clears auth cookies.
@@ -268,8 +301,8 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
 		HTTPOnly: true,
-		Secure:   h.cfg != nil && !h.cfg.IsDevelopment(),
-		SameSite: "Strict",
+		Secure:   h.cookieSecure(),
+		SameSite: h.cookieSameSite(),
 		Path:     "/",
 	})
 	c.Cookie(&fiber.Cookie{
@@ -277,8 +310,8 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
 		HTTPOnly: true,
-		Secure:   h.cfg != nil && !h.cfg.IsDevelopment(),
-		SameSite: "Strict",
+		Secure:   h.cookieSecure(),
+		SameSite: h.cookieSameSite(),
 		Path:     "/api/auth/refresh",
 	})
 	return OK(c, map[string]string{"message": "logged out"})
@@ -293,12 +326,14 @@ func (h *AuthHandler) Me(c *fiber.Ctx) error {
 	})
 }
 
-// generateToken creates a signed JWT with the given expiration.
-func (h *AuthHandler) generateToken(user userDTO, expiry time.Duration) (string, error) {
+// generateToken creates a signed JWT with the given expiration. The csrf value
+// is embedded as a claim so RequireCSRF can validate the double-submit header.
+func (h *AuthHandler) generateToken(user userDTO, expiry time.Duration, csrf string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":   user.ID,
 		"email": user.Email,
 		"role":  user.Role,
+		"csrf":  csrf,
 		"exp":   time.Now().Add(expiry).Unix(),
 		"iat":   time.Now().Unix(),
 		"jti":   uuid.New().String(),

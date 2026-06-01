@@ -2,26 +2,50 @@
 
 import { cn } from "@/lib/utils";
 
+type CardVariant = "default" | "premium" | "stat";
+
 interface CardProps {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
   glow?: boolean;
+  variant?: CardVariant;
   onClick?: () => void;
+  /** Accessible label when the card is interactive (onClick set) */
+  ariaLabel?: string;
 }
 
-export function Card({ children, className, hover, glow, onClick }: CardProps) {
+const cardVariants: Record<CardVariant, string> = {
+  default: "bg-surface border border-border",
+  premium: "card-premium",
+  stat: "bg-surface-high border border-border",
+};
+
+export function Card({ children, className, hover, glow, variant = "default", onClick, ariaLabel }: CardProps) {
+  const interactive = Boolean(onClick);
   return (
     <div
       onClick={onClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={interactive ? ariaLabel : undefined}
       className={cn(
-        "rounded-[var(--radius-lg)] bg-surface border border-border p-6",
-        "transition-all duration-300",
+        "rounded-[var(--radius-lg)] p-6 transition-all duration-300",
+        cardVariants[variant],
         hover && "hover:border-border-hover hover:bg-surface-high cursor-pointer",
         glow && "glow-accent",
-        onClick && "cursor-pointer",
+        interactive &&
+          "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
         className
       )}
     >

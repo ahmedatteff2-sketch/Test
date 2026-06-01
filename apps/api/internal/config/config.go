@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 // Config holds all environment-based configuration values.
@@ -21,6 +22,12 @@ type Config struct {
 	AdminPassword  string
 	ClientEmail    string
 	ClientPassword string
+	// TrustedProxies lists upstream proxy IPs/CIDRs (e.g. the platform load
+	// balancer) whose X-Forwarded-For header may be trusted. Parsed from the
+	// comma-separated TRUSTED_PROXIES env var. Empty means the forwarded header
+	// is trusted without validation — acceptable where the app is only reachable
+	// through the platform proxy, but set it in production to block spoofing.
+	TrustedProxies []string
 }
 
 // Load reads configuration from environment variables with sensible defaults.
@@ -53,6 +60,7 @@ func Load() *Config {
 		AdminPassword:  getEnv("ADMIN_PASSWORD", adminPasswordDefault),
 		ClientEmail:    getEnv("CLIENT_EMAIL", "client@eagle.com"),
 		ClientPassword: getEnv("CLIENT_PASSWORD", clientPasswordDefault),
+		TrustedProxies: splitCSV(getEnv("TRUSTED_PROXIES", "")),
 	}
 }
 
@@ -75,4 +83,20 @@ func getEnvInt(key string, fallback int) int {
 		}
 	}
 	return fallback
+}
+
+// splitCSV parses a comma-separated env value into a trimmed, non-empty slice.
+// Returns nil when the value is empty.
+func splitCSV(value string) []string {
+	if value == "" {
+		return nil
+	}
+	parts := strings.Split(value, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }

@@ -9,7 +9,7 @@ export function WhatsAppFloat() {
   const message = encodeURIComponent(CONTACT_CONFIG.whatsappDefaultMessage);
 
   return (
-    <div className="fixed bottom-6 start-6 z-50 pointer-events-auto">
+    <div className="fixed bottom-6 start-6 z-50 pointer-events-auto hidden md:block">
       <motion.a
         href={`https://wa.me/${coachPhone}?text=${message}`}
         target="_blank"

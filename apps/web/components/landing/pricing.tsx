@@ -52,6 +52,14 @@ const defaultPricing = {
   ]
 };
 
+/** For multi-month plans, show the equivalent monthly cost to ease price comparison. */
+function monthlyEquivalent(price: string, period: string): string | null {
+  const months = period.includes("3") ? 3 : period.includes("6") ? 6 : period.includes("12") ? 12 : 0;
+  const amount = Number(String(price).replace(/[^\d.]/g, ""));
+  if (!months || !amount || Number.isNaN(amount)) return null;
+  return Math.round(amount / months).toLocaleString("en-US");
+}
+
 export function Pricing() {
   const content = useCMSContent("pricing", defaultPricing);
   const title = content?.title || defaultPricing.title;
@@ -100,14 +108,14 @@ export function Pricing() {
               }}
               className={cn(
                 plan.highlighted
-                  ? "vip-glow-card md:scale-105 shadow-[0_0_40px_rgba(255,30,39,0.2)] hover:shadow-[0_0_50px_rgba(255,30,39,0.3)] z-10"
+                  ? "vip-glow-card md:scale-105 shadow-[0_0_45px_rgba(197,162,93,0.22)] hover:shadow-[0_0_60px_rgba(197,162,93,0.32)] z-10"
                   : "relative p-8 rounded-[var(--radius-xl)] flex flex-col bg-bg border border-border hover:border-accent/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-300"
               )}
             >
               {plan.highlighted ? (
                 <div className="vip-glow-card-inner p-8 relative">
                   <div className="absolute top-0 inset-x-0 -translate-y-1/2 flex justify-center z-20">
-                    <span className="bg-accent text-bg px-4 py-1.5 text-xs font-extrabold rounded-full flex items-center gap-1 shadow-[0_0_15px_rgba(255,30,39,0.4)] animate-pulse">
+                    <span className="bg-accent text-bg px-4 py-1.5 text-xs font-extrabold rounded-full flex items-center gap-1 shadow-[0_0_15px_rgba(197,162,93,0.45)]">
                       <svg className="w-3.5 h-3.5 text-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
                       </svg>
@@ -121,23 +129,28 @@ export function Pricing() {
                   <div className="mb-8">
                     <span className="text-4xl font-display font-bold text-white">{plan.price} ج.م</span>
                     <span className="text-text-3 text-sm"> / {plan.period}</span>
+                    {monthlyEquivalent(plan.price, plan.period) && (
+                      <p className="mt-1 text-xs font-semibold text-accent-text">
+                        ≈ {monthlyEquivalent(plan.price, plan.period)} ج.م شهرياً
+                      </p>
+                    )}
                   </div>
- 
+
                   <ul className="space-y-4 mb-8 flex-1">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
-                        <svg className="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                        <svg className="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         <span className="text-sm text-text-2 font-medium">{feature}</span>
                       </li>
                     ))}
                   </ul>
- 
+
                   <Button
                     href="/apply"
                     variant="primary"
-                    className="w-full font-bold shadow-[0_0_20px_rgba(255,30,39,0.3)] hover:shadow-[0_0_30px_rgba(255,30,39,0.5)] mt-auto z-10"
+                    className="w-full font-bold mt-auto z-10"
                   >
                     اشترك الآن
                   </Button>
@@ -153,12 +166,17 @@ export function Pricing() {
                   <div className="mb-8">
                     <span className="text-4xl font-display font-bold text-white">{plan.price} ج.م</span>
                     <span className="text-text-3 text-sm"> / {plan.period}</span>
+                    {monthlyEquivalent(plan.price, plan.period) && (
+                      <p className="mt-1 text-xs font-semibold text-accent-text">
+                        ≈ {monthlyEquivalent(plan.price, plan.period)} ج.م شهرياً
+                      </p>
+                    )}
                   </div>
- 
+
                   <ul className="space-y-4 mb-8 flex-1">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
-                        <svg className="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                        <svg className="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         <span className="text-sm text-text-2">{feature}</span>

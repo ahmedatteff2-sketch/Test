@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuthGuard, logout } from "@/lib/use-auth-guard";
 
 const tabs = [
   {
@@ -54,6 +55,17 @@ const tabs = [
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const guard = useAuthGuard("client");
+
+  if (guard !== "authorized") {
+    return (
+      <div className="flex h-screen items-center justify-center bg-bg" aria-busy="true">
+        <span className="sr-only">جارٍ التحقق من الجلسة…</span>
+        <span className="h-8 w-8 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-bg">
@@ -62,9 +74,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           <img src="/images/logo.png" alt="Eagle Gym Logo" className="w-6 h-6 object-contain" />
           <span className="font-display font-bold text-lg text-white">EAGLE <span className="text-accent">GYM</span></span>
         </div>
-        <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-          <span className="text-accent text-xs font-bold">م</span>
-        </div>
+        <button
+          type="button"
+          onClick={() => logout(router)}
+          aria-label="تسجيل الخروج"
+          className="flex items-center gap-2 rounded-full px-2 py-1 text-text-2 transition-colors hover:text-text-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+        >
+          <span className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+            <span className="text-accent text-xs font-bold" aria-hidden="true">م</span>
+          </span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
+          </svg>
+        </button>
       </header>
 
       {/* Content */}
@@ -80,12 +102,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <Link
               key={tab.href}
               href={tab.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center justify-center gap-1.5 w-16 h-full transition-all active:scale-95 duration-150 relative",
                 isActive ? "text-accent" : "text-text-2 hover:text-text-1"
               )}
             >
-              <div className="relative">
+              <div className="relative" aria-hidden="true">
                 {tab.icon}
                 {tab.label === "تشيكن" && (
                   <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
@@ -95,8 +118,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 )}
               </div>
               <span className="text-[10px] font-bold tracking-wide">{tab.label}</span>
+              {tab.label === "تشيكن" && (
+                <span className="sr-only">— لديك تشيكن مستحق اليوم</span>
+              )}
               {isActive && (
-                <span className="absolute bottom-0.5 w-7 h-1 bg-accent rounded-full shadow-[0_0_10px_rgba(255,30,39,0.6)]" />
+                <span className="absolute bottom-0.5 w-7 h-1 bg-accent rounded-full shadow-[0_0_10px_rgba(197,162,93,0.6)]" />
               )}
             </Link>
           );

@@ -37,7 +37,7 @@ export function AboutCoach() {
           >
             <div className="relative mx-auto aspect-[4/5] w-full max-w-[360px] sm:max-w-md group">
               <div className="absolute inset-0 bg-accent rounded-[var(--radius-xl)] rotate-3 opacity-20 blur-[2px] transition-transform group-hover:rotate-6 duration-500" />
-              <div className="absolute inset-0 border-2 border-accent rounded-[var(--radius-xl)] -rotate-3 opacity-40 shadow-[0_0_20px_rgba(255,30,39,0.25)]" />
+              <div className="absolute inset-0 border-2 border-accent rounded-[var(--radius-xl)] -rotate-3 opacity-40 shadow-[0_0_20px_rgba(197,162,93,0.25)]" />
               <div className="relative w-full h-full rounded-[var(--radius-xl)] overflow-hidden border border-white/10">
                 <Image
                   src="/images/coach_portrait.png"
@@ -66,7 +66,7 @@ export function AboutCoach() {
             </span>
             <h2 className="text-4xl md:text-5xl font-display font-extrabold text-white mb-6 leading-tight">
               نبني أسلوب حياة <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-[#FF453A] drop-shadow-[0_0_20px_rgba(255,30,39,0.15)]">وليس مجرد جسم</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-[#F0C978] drop-shadow-[0_0_20px_rgba(197,162,93,0.15)]">وليس مجرد جسم</span>
             </h2>
             <div className="space-y-4 text-text-2 text-base md:text-lg leading-relaxed">
               <p>{content.paragraph1}</p>

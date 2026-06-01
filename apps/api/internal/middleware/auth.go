@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"crypto/subtle"
 	"fmt"
 	"os"
 	"strings"
@@ -14,6 +15,7 @@ type contextKey string
 const (
 	userIDKey contextKey = "userID"
 	roleKey   contextKey = "role"
+	csrfKey   contextKey = "csrf"
 )
 
 // AuthMiddleware validates JWT access tokens from httpOnly cookies.
@@ -79,7 +81,29 @@ func AuthMiddleware(publicKey string) fiber.Handler {
 		// Inject user info into context
 		c.Locals(string(userIDKey), claims["sub"])
 		c.Locals(string(roleKey), claims["role"])
+		c.Locals(string(csrfKey), claims["csrf"])
 
+		return c.Next()
+	}
+}
+
+// RequireCSRF enforces a double-submit CSRF check on state-changing requests.
+// The CSRF token is bound into the access-token JWT (the "csrf" claim, which a
+// cross-site attacker can neither read nor forge) and must be echoed by the
+// client in the X-CSRF-Token header. Safe methods pass through untouched.
+// MUST run after AuthMiddleware, which populates the csrf local from the JWT.
+func RequireCSRF() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		switch c.Method() {
+		case fiber.MethodGet, fiber.MethodHead, fiber.MethodOptions:
+			return c.Next()
+		}
+		expected, _ := c.Locals(string(csrfKey)).(string)
+		provided := c.Get("X-CSRF-Token")
+		if expected == "" || provided == "" ||
+			subtle.ConstantTimeCompare([]byte(expected), []byte(provided)) != 1 {
+			return fiber.NewError(fiber.StatusForbidden, "invalid or missing CSRF token")
+		}
 		return c.Next()
 	}
 }

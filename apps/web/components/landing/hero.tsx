@@ -35,11 +35,11 @@ export function Hero() {
           src="/images/hero_gym_bg.png"
           alt="EAGLE GYM training floor"
           fill
-          className="object-cover object-center opacity-55"
+          className="object-cover object-center opacity-40"
           priority
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.98)_0%,rgba(5,5,5,0.88)_38%,rgba(5,5,5,0.54)_72%,rgba(5,5,5,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.97)_0%,rgba(5,5,5,0.9)_42%,rgba(5,5,5,0.72)_72%,rgba(5,5,5,0.86)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(0deg,var(--bg)_0%,rgba(5,5,5,0.2)_34%,rgba(5,5,5,0.64)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-bg to-transparent" />
       </div>
@@ -96,7 +96,7 @@ export function Hero() {
             <Button
               href="/apply"
               size="lg"
-              className="min-h-14 w-full rounded-lg px-7 text-base font-extrabold shadow-[0_18px_45px_rgba(197,162,93,0.24)] sm:w-auto"
+              className="min-h-14 w-full px-7 text-base font-extrabold sm:w-auto"
             >
               {content.ctaText}
             </Button>
@@ -104,23 +104,60 @@ export function Hero() {
               href="#pricing"
               size="lg"
               variant="outline"
-              className="min-h-14 w-full rounded-lg border-white/15 bg-white/[0.03] px-7 text-base font-bold hover:border-accent/30 sm:w-auto"
+              className="min-h-14 w-full rounded-lg px-7 text-base font-bold sm:w-auto"
             >
               شوف الباقات
             </Button>
           </motion.div>
 
+          {/* Social proof — rating + subscriber avatars */}
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.32 }}
-            className="mt-8 flex flex-wrap gap-2"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3"
+          >
+            <div className="flex items-center -space-x-3 [&>span]:ring-2 [&>span]:ring-bg">
+              {["أ", "م", "س", "ح"].map((initial, i) => (
+                <span
+                  key={initial}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-surface-high text-xs font-bold text-accent-text"
+                  style={{ zIndex: 4 - i }}
+                  aria-hidden="true"
+                >
+                  {initial}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="flex text-accent" aria-hidden="true">
+                  {"★★★★★"}
+                </span>
+                <span className="text-sm font-extrabold text-white" dir="ltr">
+                  {content.metric3Value}
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-text-2">
+                تقييم {content.metric1Value} مشترك أنهوا تحولهم معنا
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.38 }}
+            className="mt-7 flex flex-wrap gap-2"
           >
             {proofItems.map((item) => (
               <span
                 key={item}
-                className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-bold text-text-2 backdrop-blur-sm"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-bold text-text-2 backdrop-blur-sm"
               >
+                <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
                 {item}
               </span>
             ))}

@@ -14,6 +14,10 @@ func NewCheckinHandler() *CheckinHandler {
 
 // Submit creates a daily check-in entry.
 func (h *CheckinHandler) Submit(c *fiber.Ctx) error {
+	if err := authorizeClientAccess(c, c.Params("id")); err != nil {
+		return err
+	}
+
 	var req struct {
 		WorkoutStatus    string  `json:"workoutStatus"`
 		WorkoutSetsDone  int     `json:"workoutSetsDone"`
@@ -44,6 +48,10 @@ func (h *CheckinHandler) Submit(c *fiber.Ctx) error {
 
 // Get retrieves check-in data for a specific date.
 func (h *CheckinHandler) Get(c *fiber.Ctx) error {
+	if err := authorizeClientAccess(c, c.Params("id")); err != nil {
+		return err
+	}
+
 	// date := c.Query("date") // optional date filter
 	return OK(c, map[string]interface{}{
 		"checkinDate":    "2026-05-19",

@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
-
-	"coaching-platform/internal/middleware"
 )
 
 // WorkoutHandler handles workout plan and logging endpoints.
@@ -66,20 +64,8 @@ var demoPlan = map[string]interface{}{
 
 // GetPlan returns the active workout plan for a client.
 func (h *WorkoutHandler) GetPlan(c *fiber.Ctx) error {
-	role := middleware.UserRole(c)
-	clientID := c.Params("id")
-
-	if role == "client" {
-		userID := middleware.UserID(c)
-		// Demo check: client@eagle.com has userID "00000000-0000-0000-0000-000000000002"
-		// and matches clientID "c2". If they attempt to access any other ID, return 403.
-		expectedClientID := ""
-		if userID == "00000000-0000-0000-0000-000000000002" {
-			expectedClientID = "c2"
-		}
-		if clientID != expectedClientID {
-			return fiber.NewError(fiber.StatusForbidden, "unauthorized access to workout plan")
-		}
+	if err := authorizeClientAccess(c, c.Params("id")); err != nil {
+		return err
 	}
 
 	return OK(c, demoPlan)
@@ -96,6 +82,10 @@ func (h *WorkoutHandler) CreatePlan(c *fiber.Ctx) error {
 
 // LogSet records a completed set for a client.
 func (h *WorkoutHandler) LogSet(c *fiber.Ctx) error {
+	if err := authorizeClientAccess(c, c.Params("id")); err != nil {
+		return err
+	}
+
 	var req struct {
 		ExerciseID string  `json:"exerciseId"`
 		SetNumber  int     `json:"setNumber"`

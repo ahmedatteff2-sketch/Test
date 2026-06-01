@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
-
-	"coaching-platform/internal/middleware"
 )
 
 // ClientHandler handles client management endpoints.
@@ -31,20 +29,10 @@ func (h *ClientHandler) List(c *fiber.Ctx) error {
 // Get returns a single client by ID.
 func (h *ClientHandler) Get(c *fiber.Ctx) error {
 	clientID := c.Params("id")
-	role := middleware.UserRole(c)
 
-	// Clients can only access their own profile
-	if role == "client" {
-		userID := middleware.UserID(c)
-		// Demo check: client@eagle.com has userID "00000000-0000-0000-0000-000000000002"
-		// and corresponds to client ID "c2". If they attempt to access any other ID, return 403.
-		expectedClientID := ""
-		if userID == "00000000-0000-0000-0000-000000000002" {
-			expectedClientID = "c2"
-		}
-		if clientID != expectedClientID {
-			return fiber.NewError(fiber.StatusForbidden, "unauthorized access to client profile")
-		}
+	// Clients may only access their own profile; admins may access any.
+	if err := authorizeClientAccess(c, clientID); err != nil {
+		return err
 	}
 
 	for _, client := range demoClients {

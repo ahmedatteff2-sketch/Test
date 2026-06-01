@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useAuthGuard, logout } from "@/lib/use-auth-guard";
 
 const navItems = [
   {
@@ -95,10 +96,24 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const guard = useAuthGuard("admin");
+
+  if (guard !== "authorized") {
+    return (
+      <div className="flex h-screen items-center justify-center bg-bg" aria-busy="true">
+        <span className="sr-only">جارٍ التحقق من الجلسة…</span>
+        <span className="h-8 w-8 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg">
+      <a href="#admin-main" className="skip-link">
+        تخطَّ إلى المحتوى
+      </a>
       {/* Sidebar */}
       <motion.aside
         animate={{ width: collapsed ? 72 : 240 }}
@@ -129,6 +144,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                title={collapsed ? item.label : undefined}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] transition-all duration-200",
                   "text-sm font-medium",
@@ -137,8 +154,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : "text-text-2 hover:text-text-1 hover:bg-surface-high"
                 )}
               >
-                <span className="shrink-0">{item.icon}</span>
+                <span className="shrink-0" aria-hidden="true">{item.icon}</span>
                 {!collapsed && <span>{item.label}</span>}
+                {collapsed && <span className="sr-only">{item.label}</span>}
               </Link>
             );
           })}
@@ -147,6 +165,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Collapse button */}
         <button
           onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
           className="p-4 border-t border-border text-text-3 hover:text-text-1 transition-colors cursor-pointer"
         >
           <svg
@@ -169,7 +188,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface">
           <div className="flex items-center gap-3">
             <div className="relative">
+              <label htmlFor="admin-search" className="sr-only">بحث</label>
               <input
+                id="admin-search"
                 type="text"
                 placeholder="بحث... (⌘K)"
                 className="w-64 px-4 py-2 rounded-[var(--radius-md)] bg-bg border border-border text-sm text-text-1 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/20"
@@ -178,21 +199,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <div className="flex items-center gap-4">
             {/* Notifications bell */}
-            <button className="relative p-2 text-text-2 hover:text-text-1 transition-colors cursor-pointer">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <button
+              aria-label="الإشعارات"
+              className="relative p-2 text-text-2 hover:text-text-1 transition-colors cursor-pointer"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <path d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
               </svg>
               <span className="absolute top-1.5 end-1.5 w-2 h-2 bg-accent rounded-full" />
             </button>
-            {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-              <span className="text-accent text-xs font-bold">A</span>
-            </div>
+            {/* Avatar / logout */}
+            <button
+              type="button"
+              onClick={() => logout(router)}
+              aria-label="تسجيل الخروج"
+              className="flex items-center gap-2 rounded-full p-1 text-text-2 transition-colors hover:text-text-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 cursor-pointer"
+            >
+              <span className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                <span className="text-accent text-xs font-bold" aria-hidden="true">A</span>
+              </span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
+              </svg>
+            </button>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main id="admin-main" className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>

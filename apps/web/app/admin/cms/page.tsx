@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { getApiBase } from "@/lib/config";
 
 type Section =
   | "hero"
@@ -73,18 +74,6 @@ interface FAQItem {
   question: string;
   answer: string;
 }
-
-const getApiBase = () => {
-  if (typeof window !== "undefined") {
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      return process.env.NEXT_PUBLIC_API_URL;
-    }
-    return `http://${window.location.hostname}:8080/api`;
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-};
-
-const API_BASE = getApiBase();
 
 export default function CMSPage() {
   const [activeSection, setActiveSection] = useState<Section>("hero");
@@ -264,7 +253,7 @@ export default function CMSPage() {
 
       // 2. Try fetching from the Go API
       try {
-        const res = await fetch(`${API_BASE}/site-content/${activeSection}`);
+        const res = await fetch(`${getApiBase()}/site-content/${activeSection}`);
         if (res.ok) {
           const resJson = await res.json();
           const payload = resJson.data || resJson;
@@ -318,7 +307,7 @@ export default function CMSPage() {
 
     // Save to Go Backend API
     try {
-      await fetch(`${API_BASE}/site-content/${activeSection}`, {
+      await fetch(`${getApiBase()}/site-content/${activeSection}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(apiPayload),
