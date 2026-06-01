@@ -22,12 +22,26 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  function loginAsDemo(email: keyof typeof demoUsers) {
+    if (!isLocalDemo()) {
+      setError("دخول الديمو السريع متاح محليًا فقط.");
+      return;
+    }
+    window.location.href = demoUsers[email].redirect;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
+      const demoUser = demoUsers[email as keyof typeof demoUsers];
+      if (isLocalDemo() && demoUser?.password === password) {
+        window.location.href = demoUser.redirect;
+        return;
+      }
+
       const apiBase = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined"
         ? `http://${window.location.hostname}:8080/api`
         : "http://localhost:8080/api");
@@ -44,11 +58,6 @@ export default function LoginPage() {
           }
         );
       } catch {
-        const demoUser = demoUsers[email as keyof typeof demoUsers];
-        if (isLocalDemo() && demoUser?.password === password) {
-          window.location.href = demoUser.redirect;
-          return;
-        }
         throw new Error("الـ API غير شغال حالياً. شغّل الباك إند أو استخدم الحساب التجريبي على localhost.");
       }
 
@@ -95,6 +104,22 @@ export default function LoginPage() {
           <p className="font-bold text-text-1">حسابات الديمو</p>
           <p dir="ltr" className="mt-1 text-start">admin@eagle.com / admin123</p>
           <p dir="ltr" className="text-start">client@eagle.com / client123</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => loginAsDemo("admin@eagle.com")}
+              className="rounded-md border border-accent/20 bg-bg/50 px-3 py-2 font-bold text-accent transition-colors hover:bg-accent/10"
+            >
+              دخول أدمن
+            </button>
+            <button
+              type="button"
+              onClick={() => loginAsDemo("client@eagle.com")}
+              className="rounded-md border border-accent/20 bg-bg/50 px-3 py-2 font-bold text-accent transition-colors hover:bg-accent/10"
+            >
+              دخول عميل
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
