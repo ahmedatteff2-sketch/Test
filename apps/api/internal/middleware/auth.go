@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,6 +38,9 @@ func AuthMiddleware(publicKey string) fiber.Handler {
 		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 			// Validate algorithm
 			if publicKey == "" {
+				if os.Getenv("ENVIRONMENT") != "development" {
+					return nil, fmt.Errorf("JWT public key or secret is required in production")
+				}
 				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 				}

@@ -29,19 +29,19 @@
   --danger:        #FF4444;
   --info:          #4BA3FF;
 
-  /* ── Typography scale (fluid) ── */
-  --text-xs:   clamp(0.7rem,  1.5vw, 0.75rem);
-  --text-sm:   clamp(0.8rem,  2vw,   0.875rem);
-  --text-base: clamp(0.9rem,  2vw,   1rem);
-  --text-lg:   clamp(1rem,    2.5vw, 1.125rem);
-  --text-xl:   clamp(1.1rem,  3vw,   1.25rem);
-  --text-2xl:  clamp(1.25rem, 4vw,   1.5rem);
-  --text-3xl:  clamp(1.5rem,  5vw,   1.875rem);
-  --text-4xl:  clamp(1.875rem,6vw,   2.25rem);
-  --text-5xl:  clamp(2.25rem, 7vw,   3rem);
-  --text-6xl:  clamp(3rem,    8vw,   3.75rem);
-  --text-7xl:  clamp(3.75rem, 10vw,  4.5rem);
-  --text-8xl:  clamp(4.5rem,  12vw,  6rem);
+  /* ── Typography scale ── */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
+  --text-5xl:  3rem;
+  --text-6xl:  3.75rem;
+  --text-7xl:  4.5rem;
+  --text-8xl:  6rem;
 
   /* ── Radii ── */
   --radius-sm:  6px;
@@ -167,6 +167,15 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   position: relative;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  max-width: 100%;
 }
 
 /* Subtle noise grain overlay */

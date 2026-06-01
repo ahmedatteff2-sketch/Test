@@ -33,9 +33,9 @@ export function AboutCoach() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="w-full lg:w-1/2"
+            className="w-full overflow-hidden lg:w-1/2 lg:overflow-visible"
           >
-            <div className="relative aspect-[4/5] max-w-md mx-auto group">
+            <div className="relative mx-auto aspect-[4/5] w-full max-w-[360px] sm:max-w-md group">
               <div className="absolute inset-0 bg-accent rounded-[var(--radius-xl)] rotate-3 opacity-20 blur-[2px] transition-transform group-hover:rotate-6 duration-500" />
               <div className="absolute inset-0 border-2 border-accent rounded-[var(--radius-xl)] -rotate-3 opacity-40 shadow-[0_0_20px_rgba(255,30,39,0.25)]" />
               <div className="relative w-full h-full rounded-[var(--radius-xl)] overflow-hidden border border-white/10">
@@ -46,8 +46,8 @@ export function AboutCoach() {
                   className="object-cover object-center transition-all duration-700 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-4 inset-x-0 text-center">
-                  <span className="text-xs uppercase tracking-widest font-black text-accent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Building Life Style Not Just A Body</span>
+                <div className="absolute bottom-4 inset-x-0 px-4 text-center">
+                  <span className="text-xs uppercase font-black text-accent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Building Life Style Not Just A Body</span>
                 </div>
               </div>
             </div>

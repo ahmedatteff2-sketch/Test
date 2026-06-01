@@ -6,6 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
+const demoUsers = {
+  "admin@eagle.com": { password: "admin123", redirect: "/admin/dashboard" },
+  "client@eagle.com": { password: "client123", redirect: "/client/today" },
+};
+
+function isLocalDemo() {
+  if (typeof window === "undefined") return false;
+  return ["localhost", "127.0.0.1"].includes(window.location.hostname);
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,15 +32,25 @@ export default function LoginPage() {
         ? `http://${window.location.hostname}:8080/api`
         : "http://localhost:8080/api");
 
-      const res = await fetch(
-        `${apiBase}/auth/login`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+      let res: Response;
+      try {
+        res = await fetch(
+          `${apiBase}/auth/login`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          }
+        );
+      } catch {
+        const demoUser = demoUsers[email as keyof typeof demoUsers];
+        if (isLocalDemo() && demoUser?.password === password) {
+          window.location.href = demoUser.redirect;
+          return;
         }
-      );
+        throw new Error("الـ API غير شغال حالياً. شغّل الباك إند أو استخدم الحساب التجريبي على localhost.");
+      }
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -71,6 +91,12 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="glass rounded-[var(--radius-xl)] p-8">
+        <div className="mb-5 rounded-lg border border-accent/15 bg-accent/[0.06] p-3 text-xs leading-6 text-text-2">
+          <p className="font-bold text-text-1">حسابات الديمو</p>
+          <p dir="ltr" className="mt-1 text-start">admin@eagle.com / admin123</p>
+          <p dir="ltr" className="text-start">client@eagle.com / client123</p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="البريد الإلكتروني"

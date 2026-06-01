@@ -158,6 +158,12 @@ const coachTips = [
   { icon: "diet", text: "كل سلطة مع الغداء والعشاء — الألياف بتساعد في الشبع" },
 ];
 
+const flexibleSwaps = [
+  { craving: "عايز بيتزا؟", swap: "خد 2 slice وبدّل وجبة العشاء بتونة + سلطة", kcal: 640, protein: 34 },
+  { craving: "نفسك في رز زيادة؟", swap: "زود 100g رز وقلل 15g دهون من باقي اليوم", kcal: 130, protein: 3 },
+  { craving: "حلو بعد التمرين؟", swap: "زبادي يوناني + موز + عسل بدل حلويات عالية الدهون", kcal: 260, protein: 22 },
+];
+
 function getCoachTipIcon(iconType: string) {
   const baseClass = "w-4 h-4 text-accent shrink-0 mt-0.5";
   switch (iconType) {
@@ -398,6 +404,12 @@ export default function NutritionPage() {
   const targets = { kcal: 2200, protein: 180, carbs: 250, fat: 60 };
   const mealsEatenCount = eatenMeals.length;
   const totalMealsCount = meals.length;
+  const remaining = {
+    kcal: Math.max(targets.kcal - totalEaten.kcal, 0),
+    protein: Math.max(targets.protein - totalEaten.protein, 0),
+    carbs: Math.max(targets.carbs - totalEaten.carbs, 0),
+    fat: Math.max(targets.fat - totalEaten.fat, 0),
+  };
 
   return (
     <div className="space-y-5">
@@ -541,6 +553,33 @@ export default function NutritionPage() {
           <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#4BA3FF]" /><span className="text-[9px] text-text-3">بروتين</span></div>
           <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#FFB020]" /><span className="text-[9px] text-text-3">كاربز</span></div>
           <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#FF6B6B]" /><span className="text-[9px] text-text-3">دهون</span></div>
+        </div>
+      </Card>
+
+      <Card className="border-info/20 bg-info/[0.045] p-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-xs font-bold text-info">Flexible Diet Wallet</p>
+            <h2 className="mt-1 text-lg font-bold text-text-1">كل اللي تحبه، بس محسوب</h2>
+            <p className="mt-1 text-sm leading-7 text-text-2">
+              المتبقي اليوم: {remaining.kcal} سعرة، {remaining.protein}g بروتين، {remaining.carbs}g كارب، {remaining.fat}g دهون.
+            </p>
+          </div>
+          <div className="grid gap-2 lg:w-[520px]">
+            {flexibleSwaps.map((item) => (
+              <button
+                key={item.craving}
+                className="rounded-lg border border-white/10 bg-bg/45 p-3 text-start transition-colors hover:border-info/30 hover:bg-info/10"
+                onClick={() => setShowCheatModal(true)}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-bold text-text-1">{item.craving}</span>
+                  <span className="text-xs font-bold text-info" dir="ltr">{item.kcal} kcal</span>
+                </div>
+                <p className="mt-1 text-xs leading-6 text-text-2">{item.swap} · {item.protein}g protein</p>
+              </button>
+            ))}
+          </div>
         </div>
       </Card>
 
