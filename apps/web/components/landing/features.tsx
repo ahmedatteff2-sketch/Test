@@ -72,7 +72,7 @@ export function Features() {
             مميزات المنصة
           </span>
           <h2 className="font-display font-extrabold text-white text-3xl md:text-5xl leading-tight max-w-2xl mx-auto">
-            كل ما تحتاجه للوصول <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-[#FF453A] drop-shadow-[0_0_20px_rgba(255,30,39,0.25)]">لهدفك</span> في مكان واحد
+            كل ما تحتاجه للوصول <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-[#F0C978] drop-shadow-[0_0_20px_rgba(197,162,93,0.25)]">لهدفك</span> في مكان واحد
           </h2>
           <p className="text-text-3 text-sm mt-4 max-w-md mx-auto">
             توقف عن استخدام جداول إكسل المعقدة وشات الواتساب غير المنظم. احصل على تجربة تدريب متكاملة.
@@ -83,7 +83,7 @@ export function Features() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Card 1: Workouts (Double column on desktop) */}
-          <div className="lg:col-span-7 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col md:flex-row gap-8 items-center justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(255,30,39,0.06)] transition-all duration-300 group">
+          <div className="lg:col-span-7 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col md:flex-row gap-8 items-center justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(197,162,93,0.06)] transition-all duration-300 group">
             <div className="space-y-4 flex-1">
               <div className="w-12 h-12 rounded-xl bg-accent-dim border border-accent/20 flex items-center justify-center text-accent transition-transform duration-300 group-hover:scale-110">
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -136,7 +136,7 @@ export function Features() {
           </div>
 
           {/* Card 2: Nutrition (Single column) */}
-          <div className="lg:col-span-5 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(255,30,39,0.06)] transition-all duration-300 group">
+          <div className="lg:col-span-5 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(197,162,93,0.06)] transition-all duration-300 group">
             <div className="space-y-4 mb-8">
               <div className="w-12 h-12 rounded-xl bg-accent-dim border border-accent/20 flex items-center justify-center text-accent transition-transform duration-300 group-hover:scale-110">
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -183,7 +183,7 @@ export function Features() {
           </div>
 
           {/* Card 3: Chat 24/7 (Single column) */}
-          <div className="lg:col-span-5 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(255,30,39,0.06)] transition-all duration-300 group">
+          <div className="lg:col-span-5 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(197,162,93,0.06)] transition-all duration-300 group">
             <div className="space-y-4 mb-8">
               <div className="w-12 h-12 rounded-xl bg-accent-dim border border-accent/20 flex items-center justify-center text-accent transition-transform duration-300 group-hover:scale-110">
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -216,7 +216,7 @@ export function Features() {
           </div>
 
           {/* Card 4: Reports (Double column on desktop) */}
-          <div className="lg:col-span-7 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col md:flex-row gap-8 items-center justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(255,30,39,0.06)] transition-all duration-300 group">
+          <div className="lg:col-span-7 bg-surface border border-border rounded-[var(--radius-xl)] p-8 flex flex-col md:flex-row gap-8 items-center justify-between hover:border-accent/30 hover:shadow-[0_15px_35px_rgba(197,162,93,0.06)] transition-all duration-300 group">
             <div className="space-y-4 flex-1">
               <div className="w-12 h-12 rounded-xl bg-accent-dim border border-accent/20 flex items-center justify-center text-accent transition-transform duration-300 group-hover:scale-110">
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

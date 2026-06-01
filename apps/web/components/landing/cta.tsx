@@ -27,10 +27,10 @@ export function CTA() {
     <section id="cta" className="relative py-32 overflow-hidden bg-bg">
       <div className="absolute inset-0">
         <div
-          className="absolute inset-0 opacity-25"
+          className="absolute inset-0 opacity-30"
           style={{
             background:
-              "radial-gradient(ellipse at 50% 50%, rgba(255, 30, 39, 0.18) 0%, transparent 60%)",
+              "radial-gradient(ellipse at 50% 50%, rgba(197, 162, 93, 0.18) 0%, transparent 60%)",
           }}
         />
         {/* Futuristic background grid */}
@@ -38,10 +38,10 @@ export function CTA() {
       </div>
       
       <div className="relative z-10 max-w-5xl mx-auto px-6">
-        <div className="glass p-12 md:p-16 rounded-[var(--radius-xl)] border-accent/20 bg-surface/80 backdrop-blur-xl text-center shadow-[0_0_50px_rgba(255,30,39,0.1)] relative overflow-hidden">
+        <div className="glass p-12 md:p-16 rounded-[var(--radius-xl)] border-accent/20 bg-surface/80 backdrop-blur-xl text-center shadow-[0_0_50px_rgba(197,162,93,0.12)] relative overflow-hidden">
           {/* Subtle glow */}
           <div className="absolute -top-24 -left-24 w-48 h-48 bg-accent/20 rounded-full blur-[80px] pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-info/10 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-accent/10 rounded-full blur-[80px] pointer-events-none" />
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -59,7 +59,7 @@ export function CTA() {
               {title.includes("رحلة التحول") ? (
                 <>
                   {title.split("رحلة التحول")[0]}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-[#FF453A] drop-shadow-[0_0_25px_rgba(255,30,39,0.35)]">رحلة التحول</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-[#F0C978] drop-shadow-[0_0_25px_rgba(197,162,93,0.35)]">رحلة التحول</span>
                   {title.split("رحلة التحول")[1]}
                 </>
               ) : (
@@ -72,10 +72,10 @@ export function CTA() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button 
-                href="/apply" 
-                size="lg" 
-                className="w-full sm:w-auto text-lg px-10 py-6 rounded-full shadow-[0_0_20px_rgba(255,30,39,0.3)] hover:shadow-[0_0_35px_rgba(255,30,39,0.5)] transition-all duration-300 animate-pulse-glow font-bold"
+              <Button
+                href="/apply"
+                size="lg"
+                className="w-full sm:w-auto text-lg px-10 py-6 rounded-full transition-all duration-300 animate-pulse-glow font-bold"
               >
                 {ctaText}
               </Button>

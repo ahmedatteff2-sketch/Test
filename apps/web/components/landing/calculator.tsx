@@ -127,7 +127,7 @@ export function Calculator() {
                     className={cn(
                       "py-3.5 rounded-[var(--radius-md)] border text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2",
                       gender === "male"
-                        ? "bg-accent/10 border-accent text-accent shadow-[0_0_15px_rgba(255,30,39,0.1)]"
+                        ? "bg-accent/10 border-accent text-accent shadow-[0_0_15px_rgba(197,162,93,0.1)]"
                         : "bg-bg border-border text-text-2 hover:border-accent/30"
                     )}
                   >
@@ -140,7 +140,7 @@ export function Calculator() {
                     className={cn(
                       "py-3.5 rounded-[var(--radius-md)] border text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2",
                       gender === "female"
-                        ? "bg-accent/10 border-accent text-accent shadow-[0_0_15px_rgba(255,30,39,0.1)]"
+                        ? "bg-accent/10 border-accent text-accent shadow-[0_0_15px_rgba(197,162,93,0.1)]"
                         : "bg-bg border-border text-text-2 hover:border-accent/30"
                     )}
                   >
@@ -224,7 +224,7 @@ export function Calculator() {
                       className={cn(
                         "py-3 px-2 rounded-[var(--radius-md)] border text-xs font-bold transition-all cursor-pointer text-center",
                         goal === g.key
-                          ? "bg-accent/10 border-accent text-accent shadow-[0_0_15px_rgba(255,30,39,0.1)]"
+                          ? "bg-accent/10 border-accent text-accent shadow-[0_0_15px_rgba(197,162,93,0.1)]"
                           : "bg-bg border-border text-text-2 hover:border-accent/30"
                       )}
                     >
@@ -235,7 +235,7 @@ export function Calculator() {
               </div>
 
               {/* Calculate Button */}
-              <Button type="submit" size="lg" className="w-full font-bold shadow-[0_0_20px_rgba(255,30,39,0.2)]">
+              <Button type="submit" size="lg" className="w-full font-bold shadow-[0_0_20px_rgba(197,162,93,0.2)]">
                 احسب احتياجك الآن
               </Button>
             </form>
@@ -302,7 +302,7 @@ export function Calculator() {
                     <Button
                       href="/apply"
                       size="lg"
-                      className="w-full font-bold shadow-[0_0_20px_rgba(255,30,39,0.35)] hover:shadow-[0_0_30px_rgba(255,30,39,0.55)] transition-all duration-300 animate-pulse-glow"
+                      className="w-full font-bold shadow-[0_0_20px_rgba(197,162,93,0.35)] hover:shadow-[0_0_30px_rgba(197,162,93,0.55)] transition-all duration-300 animate-pulse-glow"
                     >
                       اشترك الآن بالخطة المقترحة
                     </Button>

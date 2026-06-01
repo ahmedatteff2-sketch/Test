@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { getApiBase } from "@/lib/config";
 
 export default function ApplyPage() {
   const [step, setStep] = useState(1);
@@ -48,9 +49,7 @@ export default function ApplyPage() {
     setLoading(true);
     setSubmitError("");
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined"
-        ? `http://${window.location.hostname}:8080/api`
-        : "http://localhost:8080/api");
+      const apiBase = getApiBase();
 
       const response = await fetch(`${apiBase}/applications`, {
         method: "POST",

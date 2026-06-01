@@ -83,7 +83,7 @@ export function Transformations() {
               onClick={() => setActiveTab(idx)}
               className={`px-5 py-3 rounded-full text-sm font-bold border transition-all cursor-pointer ${
                 activeTab === idx
-                  ? "bg-accent border-accent text-bg shadow-[0_0_15px_rgba(255,30,39,0.3)]"
+                  ? "bg-accent border-accent text-bg shadow-[0_0_15px_rgba(197,162,93,0.3)]"
                   : "bg-surface border-border text-text-2 hover:border-accent/40"
               }`}
             >

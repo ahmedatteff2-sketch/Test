@@ -13,25 +13,32 @@ import { FAQ } from "@/components/landing/faq";
 import { CTA } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
 import { WhatsAppFloat } from "@/components/landing/whatsapp-float";
+import { MobileCtaBar } from "@/components/landing/mobile-cta-bar";
 
 export default function LandingPage() {
   return (
     <main className="relative bg-bg min-h-screen">
+      <a href="#main" className="skip-link">
+        تخطَّ إلى المحتوى
+      </a>
       <Navbar />
-      <Hero />
-      <Stats />
-      <AboutCoach />
-      <Features />
-      <ClientCommandCenter />
-      <Calculator />
-      <Transformations />
-      <Testimonials />
-      <HowItWorks />
-      <Pricing />
-      <FAQ />
-      <CTA />
+      <div id="main">
+        <Hero />
+        <Stats />
+        <AboutCoach />
+        <Features />
+        <ClientCommandCenter />
+        <Calculator />
+        <Transformations />
+        <Testimonials />
+        <HowItWorks />
+        <Pricing />
+        <FAQ />
+        <CTA />
+      </div>
       <Footer />
       <WhatsAppFloat />
+      <MobileCtaBar />
     </main>
   );
 }

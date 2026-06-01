@@ -41,7 +41,7 @@ function Counter({ target }: { target: number }) {
 }
 
 function getStatIcon(label: string) {
-  const baseClass = "w-8 h-8 text-accent mb-4 mx-auto opacity-90 drop-shadow-[0_0_10px_rgba(255,30,39,0.3)]";
+  const baseClass = "w-8 h-8 text-accent mb-4 mx-auto opacity-90 drop-shadow-[0_0_10px_rgba(197,162,93,0.3)]";
   if (label.includes("عميل") || label.includes("مشترك")) {
     return (
       <svg className={baseClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

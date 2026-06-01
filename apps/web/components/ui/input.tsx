@@ -12,6 +12,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   function Input({ label, error, hint, className, id, ...props }, ref) {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
+    const errorId = inputId ? `${inputId}-error` : undefined;
+    const hintId = inputId ? `${inputId}-hint` : undefined;
+    const describedBy = error ? errorId : hint ? hintId : undefined;
 
     return (
       <div className="flex flex-col gap-1.5">
@@ -26,6 +29,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
           className={cn(
             "w-full px-4 py-2.5 rounded-[var(--radius-md)]",
             "bg-surface border border-border",
@@ -39,10 +44,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p className="text-xs text-danger mt-0.5">{error}</p>
+          <p id={errorId} className="text-xs text-danger mt-0.5">{error}</p>
         )}
         {hint && !error && (
-          <p className="text-xs text-text-3 mt-0.5">{hint}</p>
+          <p id={hintId} className="text-xs text-text-3 mt-0.5">{hint}</p>
         )}
       </div>
     );

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { StatRing } from "@/components/ui/stat-ring";
 
 /* ── Mock workout data ── */
 const mockDay = {
@@ -197,6 +198,7 @@ export default function TodayPage() {
   const [waterLogged, setWaterLogged] = useState(1500);
   const [fatigueState, setFatigueState] = useState("مستقر");
   const [isAlertSent, setIsAlertSent] = useState(false);
+  const [openVideo, setOpenVideo] = useState<Record<string, boolean>>({});
   const waterTarget = 3500;
 
   function handleSetComplete(exerciseName: string, restSeconds: number) {
@@ -231,52 +233,52 @@ export default function TodayPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Water Tracker */}
         <Card className="p-4 relative overflow-hidden bg-surface border border-border">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-text-1 flex items-center gap-1.5 select-none">
-              <svg className="w-3.5 h-3.5 text-info shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <div className="flex items-center gap-4">
+            <StatRing
+              value={Math.min((waterLogged / waterTarget) * 100, 100)}
+              size={76}
+              strokeWidth={7}
+              color="var(--info)"
+              label={`ميزان المياه: ${waterLogged} من ${waterTarget} مل`}
+              className="shrink-0"
+            >
+              <svg className="w-6 h-6 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
               </svg>
-              <span>ميزان المياه اليومي</span>
-            </h3>
-            <span className="text-[10px] text-text-3 font-mono">
-              {waterLogged} / {waterTarget} مل
-            </span>
-          </div>
+            </StatRing>
 
-          <div className="relative h-2 rounded-full bg-surface-high overflow-hidden mb-3 border border-border">
-            <motion.div
-              className="h-full bg-gradient-to-r from-info/80 to-info"
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min((waterLogged / waterTarget) * 100, 100)}%` }}
-              transition={{ type: "spring", stiffness: 80, damping: 15 }}
-            />
-          </div>
-
-          <div className="flex gap-2 items-center justify-between">
-            <div className="flex gap-1.5 flex-1">
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1 text-[10px] py-1 px-2 border-info/20 text-info hover:bg-info/10"
-                onClick={() => setWaterLogged(prev => Math.min(prev + 250, waterTarget + 1000))}
-              >
-                + 250مل
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1 text-[10px] py-1 px-2 border-info/20 text-info hover:bg-info/10"
-                onClick={() => setWaterLogged(prev => Math.min(prev + 500, waterTarget + 1000))}
-              >
-                + 500مل
-              </Button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xs font-bold text-text-1 select-none">ميزان المياه اليومي</h3>
+                <button
+                  className="text-[9px] text-text-3 hover:text-text-2 cursor-pointer select-none font-bold"
+                  onClick={() => setWaterLogged(0)}
+                >
+                  إعادة ضبط
+                </button>
+              </div>
+              <p className="mt-0.5 text-[11px] text-text-2 font-mono" dir="ltr">
+                {waterLogged} / {waterTarget} مل
+              </p>
+              <div className="mt-2.5 flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 min-h-9 text-xs border-info/20 text-info hover:bg-info/10"
+                  onClick={() => setWaterLogged(prev => Math.min(prev + 250, waterTarget + 1000))}
+                >
+                  + 250مل
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 min-h-9 text-xs border-info/20 text-info hover:bg-info/10"
+                  onClick={() => setWaterLogged(prev => Math.min(prev + 500, waterTarget + 1000))}
+                >
+                  + 500مل
+                </Button>
+              </div>
             </div>
-            <button
-              className="text-[9px] text-text-3 hover:text-text-2 cursor-pointer select-none font-bold px-1.5"
-              onClick={() => setWaterLogged(0)}
-            >
-              إعادة ضبط
-            </button>
           </div>
         </Card>
 
@@ -361,11 +363,16 @@ export default function TodayPage() {
                 </div>
               )}
               {!exercise.coachHighlight && (
-                <button className="text-xs text-info hover:underline flex items-center gap-1.5" onClick={() => {
-                  const el = document.getElementById(`video-upload-${exercise.id}`);
-                  if (el) el.classList.toggle('hidden');
-                }}>
-                  <svg className="w-3.5 h-3.5 text-info shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <button
+                  type="button"
+                  className="text-xs text-info hover:underline flex items-center gap-1.5"
+                  aria-expanded={!!openVideo[exercise.id]}
+                  aria-controls={`video-upload-${exercise.id}`}
+                  onClick={() =>
+                    setOpenVideo((prev) => ({ ...prev, [exercise.id]: !prev[exercise.id] }))
+                  }
+                >
+                  <svg className="w-3.5 h-3.5 text-info shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <path d="M23 7l-7 5 7 5V7z" />
                     <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                   </svg>
@@ -375,13 +382,17 @@ export default function TodayPage() {
             </div>
 
             {/* Video Upload Section */}
-            <div id={`video-upload-${exercise.id}`} className="hidden mb-4 p-3 bg-surface-high rounded-[var(--radius-md)] border border-info/20">
-              <p className="text-xs text-text-2 mb-2">ارفع فيديو للتمرين ده عشان الكوتش يراجع أداءك.</p>
-              <div className="flex gap-2">
-                <input type="text" placeholder="رابط الفيديو (YouTube أو Drive)" className="flex-1 px-3 py-1.5 bg-bg border border-border rounded-[var(--radius-sm)] text-xs text-text-1 focus:outline-none focus:border-info" />
-                <Button size="sm" className="bg-info hover:bg-info/90 text-white">إرسال</Button>
+            {openVideo[exercise.id] && (
+              <div id={`video-upload-${exercise.id}`} className="mb-4 p-3 bg-surface-high rounded-[var(--radius-md)] border border-info/20">
+                <label htmlFor={`video-url-${exercise.id}`} className="block text-xs text-text-2 mb-2">
+                  ارفع فيديو للتمرين ده عشان الكوتش يراجع أداءك.
+                </label>
+                <div className="flex gap-2">
+                  <input id={`video-url-${exercise.id}`} type="text" placeholder="رابط الفيديو (YouTube أو Drive)" className="flex-1 px-3 py-1.5 bg-bg border border-border rounded-[var(--radius-sm)] text-xs text-text-1 focus:outline-none focus:border-info" />
+                  <Button size="sm" className="bg-info hover:bg-info/90 text-white">إرسال</Button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Sets */}
             <div>
