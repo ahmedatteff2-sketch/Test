@@ -1,13 +1,5 @@
 import { useState, useEffect } from "react";
-
-const getApiBase = () => {
-  if (typeof window !== "undefined") {
-    return `http://${window.location.hostname}:8080/api`;
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-};
-
-const API_BASE = getApiBase();
+import { getApiBase } from "./config";
 
 export function useCMSContent<T>(section: string, defaultContent: T): T {
   const [content, setContent] = useState<T>(defaultContent);
@@ -27,7 +19,7 @@ export function useCMSContent<T>(section: string, defaultContent: T): T {
     let active = true;
     async function fetchContent() {
       try {
-        const res = await fetch(`${API_BASE}/site-content/${section}`);
+        const res = await fetch(`${getApiBase()}/site-content/${section}`);
         if (!res.ok) {
           throw new Error(`Section not found or server error: ${res.status}`);
         }
