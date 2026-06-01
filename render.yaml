@@ -26,6 +26,12 @@ services:
         value: client@eagle.com
       - key: CLIENT_PASSWORD
         sync: false
+      # Optional: comma-separated upstream proxy IPs/CIDRs whose X-Forwarded-For
+      # header is trusted, so the login/global rate limiters key on the real
+      # client IP without being spoofable. Set to Render's load-balancer range.
+      # Leave unset to trust the forwarded header without validation.
+      # - key: TRUSTED_PROXIES
+      #   sync: false
 
   # 2. Next.js Frontend Web Service
   - type: web
