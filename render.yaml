@@ -42,6 +42,10 @@ services:
     envVars:
       - key: PORT
         value: 3000
+      # The browser talks only to this web service; Next.js reverse-proxies
+      # /api/* to the backend below (see apps/web/next.config.ts rewrites), so
+      # auth cookies stay first-party (SameSite=Strict). This value sets the
+      # proxy target — the web service must be able to reach the API service.
       - key: NEXT_PUBLIC_API_URL
         value: https://eagle-coaching-api.onrender.com/api
 

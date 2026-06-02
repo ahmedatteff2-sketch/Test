@@ -104,16 +104,12 @@ func (h *AuthHandler) cookieSecure() bool {
 	return h.cfg != nil && !h.cfg.IsDevelopment()
 }
 
-// cookieSameSite chooses the SameSite policy. In production the web app and API
-// are served from separate domains, so cross-site auth requires SameSite=None
-// (browsers only honor None together with Secure). Locally everything is
-// same-site over http, where Lax works without Secure. In the None case, CSRF
-// is handled by the token check (RequireCSRF), not by SameSite.
+// cookieSameSite chooses the SameSite policy. The web app reverse-proxies /api
+// to this backend, so auth cookies are first-party (same-origin) in every
+// environment. Strict gives strong CSRF protection on its own; the RequireCSRF
+// token check remains as defense-in-depth.
 func (h *AuthHandler) cookieSameSite() string {
-	if h.cfg != nil && h.cfg.IsDevelopment() {
-		return "Lax"
-	}
-	return "None"
+	return "Strict"
 }
 
 // Login authenticates a user with email/password and sets JWT cookies.

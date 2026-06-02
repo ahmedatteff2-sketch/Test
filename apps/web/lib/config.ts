@@ -13,28 +13,25 @@ export const CONTACT_CONFIG = {
 /**
  * Resolve the API base URL.
  *
- * Order of precedence:
- *  1. NEXT_PUBLIC_API_URL — the canonical value, used in production.
- *  2. On localhost only, fall back to the local Go server on :8080.
+ * The web app and API are deployed same-origin: in production the browser talks
+ * only to the web domain, which reverse-proxies `/api/*` to the backend (see
+ * next.config rewrites). This keeps auth cookies first-party (SameSite=Strict)
+ * and avoids cross-site CORS.
  *
- * We deliberately do NOT hardcode `http://<hostname>:8080` for arbitrary
- * hosts: in production that breaks (wrong port) and would force insecure
- * HTTP / mixed-content. When nothing is configured off-localhost we return a
- * same-origin "/api" so requests stay on HTTPS and can be proxied.
+ *  - Production browser  -> same-origin "/api"
+ *  - localhost browser   -> the local Go server on :8080 (same-site, no proxy)
+ *  - SSR / build         -> NEXT_PUBLIC_API_URL if set, else local Go server
  */
 export function getApiBase(): string {
-  const configured = process.env.NEXT_PUBLIC_API_URL;
-  if (configured) return configured.replace(/\/+$/, "");
-
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (host === "localhost" || host === "127.0.0.1") {
       return `http://${host}:8080/api`;
     }
-    // Off-localhost with no configured API: assume same-origin proxy.
     return "/api";
   }
 
-  return "http://localhost:8080/api";
+  const configured = process.env.NEXT_PUBLIC_API_URL;
+  return configured ? configured.replace(/\/+$/, "") : "http://localhost:8080/api";
 }
 

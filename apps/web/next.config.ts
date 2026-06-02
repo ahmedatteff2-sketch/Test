@@ -27,6 +27,19 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false, // Remove X-Powered-By header
+  async rewrites() {
+    // Same-origin API: proxy /api/* to the backend so the browser only ever
+    // talks to the web domain. Keeps auth cookies first-party (SameSite=Strict)
+    // and avoids cross-site CORS. No-op when no backend origin is configured
+    // (e.g. local dev, where the browser hits the Go server on :8080 directly).
+    if (!apiOrigin) return [];
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiOrigin}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {
