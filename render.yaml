@@ -38,7 +38,8 @@ services:
     name: eagle-coaching-web
     env: node
     buildCommand: cd apps/web && npm install && npm run build
-    startCommand: cd apps/web && npm run start
+    # Bind explicitly to Render's injected $PORT so the health check passes.
+    startCommand: cd apps/web && npx next start -p $PORT
     envVars:
       - key: PORT
         value: 3000
