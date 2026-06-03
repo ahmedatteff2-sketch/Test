@@ -9,6 +9,7 @@ import (
 	"coaching-platform/internal/config"
 	"coaching-platform/internal/handlers"
 	"coaching-platform/internal/middleware"
+	"coaching-platform/internal/web"
 )
 
 func main() {
@@ -57,7 +58,14 @@ func main() {
 	admin := middleware.RequireAdmin()
 	csrf := middleware.RequireCSRF()
 
-	api := app.Group("/api")
+	// API surface: cross-origin policy, baseline rate limiting, and the strict
+	// JSON-only security headers — scoped to /api so they never reach the static
+	// front-end the server now also serves.
+	api := app.Group("/api",
+		middleware.CORS(cfg),
+		middleware.APIRateLimiter(),
+		middleware.APISecurityHeaders(),
+	)
 	api.Get("/health", func(c *fiber.Ctx) error {
 		return handlers.OK(c, fiber.Map{"status": "ok"})
 	})
@@ -83,6 +91,16 @@ func main() {
 	api.Get("/clients/:id/workout-plan", auth, workoutHandler.GetPlan)
 	api.Post("/clients/:id/workout-plan", auth, admin, csrf, workoutHandler.CreatePlan)
 	api.Post("/clients/:id/workout-log", auth, csrf, workoutHandler.LogSet)
+
+	// Unknown /api/* paths return a JSON 404 (not the HTML SPA fallback below),
+	// so API clients always get a consistent JSON contract.
+	api.Use(func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusNotFound, "not found")
+	})
+
+	// Front-end: serve the embedded static export for everything that isn't
+	// /api. Registered after the API group so the API always takes precedence.
+	app.Use("/", middleware.WebSecurityHeaders(cfg), web.Handler())
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }
