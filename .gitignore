@@ -17,6 +17,12 @@ build/
 bin/
 server
 
+# Embedded front-end build: populated at container build (Dockerfile) and
+# locally for testing. Keep only the placeholder so `go build ./cmd/server`
+# works without a web build present.
+apps/api/internal/web/dist/*
+!apps/api/internal/web/dist/index.html
+
 # OS files
 .DS_Store
 Thumbs.db

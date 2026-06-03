@@ -289,7 +289,7 @@ export default function ClientsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-end">
-                    <Link href={`/admin/clients/${client.id}`} className="text-accent hover:underline transition-colors text-sm cursor-pointer inline-flex items-center gap-1">
+                    <Link href={`/admin/clients/view?id=${client.id}`} className="text-accent hover:underline transition-colors text-sm cursor-pointer inline-flex items-center gap-1">
                       عرض ←
                     </Link>
                   </td>

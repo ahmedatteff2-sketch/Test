@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -225,8 +226,18 @@ function PhotoComparisonModal({ onClose, clientName }: { onClose: () => void; cl
   );
 }
 
-export default function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+/**
+ * Client detail view.
+ *
+ * NOTE: this was previously the dynamic route `/admin/clients/[id]`. Under the
+ * static export it became a single static page that reads the client id from the
+ * `?id=` query string, so it works for any id at runtime (a dynamic route would
+ * need `generateStaticParams` and could only emit build-time-known ids). Reached
+ * via `/admin/clients/view?id=<id>` (see the clients list link).
+ */
+function ClientDetail() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") ?? "";
   const client = allClients[id];
   const [activeTab, setActiveTab] = useState<"overview" | "notes">("overview");
   const [showPhotos, setShowPhotos] = useState(false);
@@ -423,5 +434,21 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function ClientDetailPage() {
+  // useSearchParams() requires a Suspense boundary in a static export.
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-20" aria-busy="true">
+          <span className="sr-only">جارٍ التحميل…</span>
+          <span className="h-8 w-8 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
+        </div>
+      }
+    >
+      <ClientDetail />
+    </Suspense>
   );
 }

@@ -1,23 +1,30 @@
 services:
-  # 1. Go API Backend Service
+  # Single merged service: the Go server serves the embedded Next.js static
+  # export AND the /api routes from one origin. Built from the repo Dockerfile
+  # (Node builds the front-end to a static export, Go embeds it into the binary).
+  # See apps/api/cmd/server/main.go and apps/api/internal/web.
   - type: web
-    name: eagle-coaching-api
-    env: go
-    buildCommand: cd apps/api && go build -o main cmd/server/main.go
-    startCommand: cd apps/api && ./main
+    name: eagle-coaching
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # PORT is injected by Render and read by the app (config.Load); don't pin it.
     envVars:
-      - key: PORT
-        value: 8080
+      # PostgreSQL connection string from Supabase (Project → Connect → use the
+      # "Session pooler" string, it's IPv4 — Render needs IPv4 outbound).
+      # NOTE: the app currently runs on in-memory demo data and does not yet open
+      # a DB connection, so this only needs to be non-empty to pass the
+      # production config check. Set it for real when the DB layer is wired up.
       - key: DATABASE_URL
-        fromDatabase:
-          name: eagle-coaching-db
-          property: connectionString
+        sync: false
       - key: JWT_PRIVATE_KEY
         generateValue: true
       - key: ENVIRONMENT
         value: production
+      # The browser is now same-origin with /api, so CORS isn't exercised in the
+      # browser; this is still required to be non-empty in production
+      # (validateProductionConfig). Set it to this service's own public URL.
       - key: ALLOWED_ORIGINS
-        value: https://eagle-coaching-web.onrender.com
+        value: https://eagle-coaching.onrender.com
       - key: ADMIN_EMAIL
         value: admin@eagle.com
       - key: ADMIN_PASSWORD
@@ -33,24 +40,5 @@ services:
       # - key: TRUSTED_PROXIES
       #   sync: false
 
-  # 2. Next.js Frontend Web Service
-  - type: web
-    name: eagle-coaching-web
-    env: node
-    buildCommand: cd apps/web && npm install && npm run build
-    startCommand: cd apps/web && npm run start
-    envVars:
-      - key: PORT
-        value: 3000
-      # The browser talks only to this web service; Next.js reverse-proxies
-      # /api/* to the backend below (see apps/web/next.config.ts rewrites), so
-      # auth cookies stay first-party (SameSite=Strict). This value sets the
-      # proxy target — the web service must be able to reach the API service.
-      - key: NEXT_PUBLIC_API_URL
-        value: https://eagle-coaching-api.onrender.com/api
-
-databases:
-  # 3. PostgreSQL Database
-  - name: eagle-coaching-db
-    databaseName: coaching
-    user: coaching_user
+# No `databases:` block — PostgreSQL is hosted on Supabase, not Render. Set the
+# DATABASE_URL env var above from your Supabase project's connection string.
